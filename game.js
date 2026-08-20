@@ -128,4 +128,31 @@ document.addEventListener("keyup", function(event) {
 
 });
 
-gameLoop();
+gameLoop();const leftButton = document.getElementById("left");
+const rightButton = document.getElementById("right");
+const jumpButton = document.getElementById("jump");
+
+leftButton.addEventListener("touchstart", function(e) {
+  e.preventDefault();
+  left = true;
+});
+
+leftButton.addEventListener("touchend", function(e) {
+  e.preventDefault();
+  left = false;
+});
+
+rightButton.addEventListener("touchstart", function(e) {
+  e.preventDefault();
+  right = true;
+});
+
+rightButton.addEventListener("touchend", function(e) {
+  e.preventDefault();
+  right = false;
+});
+
+jumpButton.addEventListener("touchstart", function(e) {
+  e.preventDefault();
+  jump();
+});
