@@ -1,2 +1,20 @@
-# MZ-shadow-
-Mz   Shadow 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>MZ Shadow</title>
+
+  <link rel="stylesheet" href="Style.css">
+</head>
+
+<body>
+
+  <h1>MZ SHADOW</h1>
+  <h2>Zamzamiyu</h2>
+
+  <script src="game.js"></script>
+
+</body>
+</html>
