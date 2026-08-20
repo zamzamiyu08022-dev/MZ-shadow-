@@ -417,12 +417,12 @@ jumpButton.addEventListener(
   }
 );
 
-shootButton.addEventListener(
-  "touchstart",
-  e => {
-    e.preventDefault();
-    shoot();
-  }
-);
 
+shootButton.addEventListener("click", function(e) {
+  e.preventDefault();
+  shoot();
+});shootButton.addEventListener("touchend", function(e) {
+  e.preventDefault();
+  shoot();
+});
 gameLoop();
