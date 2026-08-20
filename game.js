@@ -16,12 +16,53 @@ const player = {
   jumping: false
 };
 
-const gravity = 0.6;
+let enemies = [];
+let score = 0;
+let lives = 3;
+let gameOver = false;
 
 let left = false;
 let right = false;
 
+const gravity = 0.6;
+
+function createEnemy() {
+  enemies.push({
+    x: Math.random() * 330,
+    y: -40,
+    width: 30,
+    height: 40,
+    speed: 2 + Math.random() * 2
+  });
+}
+
+setInterval(() => {
+  if (!gameOver) {
+    createEnemy();
+  }
+}, 1200);
+
+function jump() {
+
+  if (!player.jumping && !gameOver) {
+    player.velocityY = -12;
+    player.jumping = true;
+  }
+}
+
+function collision(a, b) {
+
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
 function update() {
+
+  if (gameOver) return;
 
   if (left) {
     player.x -= player.speed;
@@ -47,14 +88,25 @@ function update() {
   if (player.x > canvas.width - player.width) {
     player.x = canvas.width - player.width;
   }
-}
 
-function jump() {
+  enemies.forEach(enemy => {
+    enemy.y += enemy.speed;
 
-  if (!player.jumping) {
-    player.velocityY = -12;
-    player.jumping = true;
-  }
+    if (collision(player, enemy)) {
+
+      lives--;
+
+      enemy.y = 600;
+
+      if (lives <= 0) {
+        gameOver = true;
+      }
+    }
+  });
+
+  enemies = enemies.filter(enemy => enemy.y < 600);
+
+  score++;
 }
 
 function draw() {
@@ -78,23 +130,90 @@ function draw() {
     player.height
   );
 
-  // Eyes
+  // Player eyes
   ctx.fillStyle = "#111";
-  ctx.fillRect(player.x + 7, player.y + 10, 5, 5);
-  ctx.fillRect(player.x + 19, player.y + 10, 5, 5);
 
-  // Game name
+  ctx.fillRect(
+    player.x + 7,
+    player.y + 10,
+    5,
+    5
+  );
+
+  ctx.fillRect(
+    player.x + 19,
+    player.y + 10,
+    5,
+    5
+  );
+
+  // Enemies
+  ctx.fillStyle = "#888";
+
+  enemies.forEach(enemy => {
+
+    ctx.fillRect(
+      enemy.x,
+      enemy.y,
+      enemy.width,
+      enemy.height
+    );
+
+  });
+
+  // Title
   ctx.fillStyle = "white";
   ctx.font = "22px Arial";
-  ctx.fillText("MZ SHADOW", 105, 35);
 
+  ctx.fillText(
+    "MZ SHADOW",
+    105,
+    30
+  );
+
+  // Score
   ctx.font = "16px Arial";
-  ctx.fillText("Zamzamiyu", 140, 60);
+
+  ctx.fillText(
+    "Score: " + score,
+    10,
+    55
+  );
+
+  // Lives
+  ctx.fillText(
+    "❤️ " + lives,
+    290,
+    55
+  );
+
+  // Game Over
+  if (gameOver) {
+
+    ctx.fillStyle = "white";
+
+    ctx.font = "32px Arial";
+
+    ctx.fillText(
+      "GAME OVER",
+      85,
+      260
+    );
+
+    ctx.font = "18px Arial";
+
+    ctx.fillText(
+      "Refresh page to restart",
+      90,
+      300
+    );
+  }
 }
 
 function gameLoop() {
 
   update();
+
   draw();
 
   requestAnimationFrame(gameLoop);
@@ -128,31 +247,33 @@ document.addEventListener("keyup", function(event) {
 
 });
 
-gameLoop();const leftButton = document.getElementById("left");
+const leftButton = document.getElementById("left");
 const rightButton = document.getElementById("right");
 const jumpButton = document.getElementById("jump");
 
-leftButton.addEventListener("touchstart", function(e) {
+leftButton.addEventListener("touchstart", e => {
   e.preventDefault();
   left = true;
 });
 
-leftButton.addEventListener("touchend", function(e) {
+leftButton.addEventListener("touchend", e => {
   e.preventDefault();
   left = false;
 });
 
-rightButton.addEventListener("touchstart", function(e) {
+rightButton.addEventListener("touchstart", e => {
   e.preventDefault();
   right = true;
 });
 
-rightButton.addEventListener("touchend", function(e) {
+rightButton.addEventListener("touchend", e => {
   e.preventDefault();
   right = false;
 });
 
-jumpButton.addEventListener("touchstart", function(e) {
+jumpButton.addEventListener("touchstart", e => {
   e.preventDefault();
   jump();
 });
+
+gameLoop();
