@@ -20,7 +20,8 @@ let enemies = [];
 let coins = [];
 let bullets = [];
 
-let score = 0;
+let score = 0;let level = 1;
+let levelComplete = false;
 let coinCount = 0;
 let lives = 3;
 let gameOver = false;
@@ -65,8 +66,7 @@ function jump() {
 }
 
 function shoot() {
-  if (gameOver) return;
-
+if (gameOver) return;
   bullets.push({
     x: player.x + player.width / 2 - 3,
     y: player.y,
@@ -86,7 +86,12 @@ function collision(a, b) {
 }
 
 function update() {
-  if (gameOver) return;
+if (gameOver || levelComplete) return;
+
+if (score >= 500) {
+  levelComplete = true;
+  return;
+}
 
   if (left) player.x -= player.speed;
   if (right) player.x += player.speed;
@@ -300,6 +305,17 @@ function draw() {
   );
 
   // Game Over
+  if (levelComplete) {
+  ctx.fillStyle = "white";
+  ctx.font = "30px Arial";
+  ctx.fillText("LEVEL 1", 125, 220);
+
+  ctx.font = "24px Arial";
+  ctx.fillText("COMPLETE!", 105, 260);
+
+  ctx.font = "18px Arial";
+  ctx.fillText("Boss coming...", 110, 300);
+}
   if (gameOver) {
 
     ctx.fillStyle = "white";
