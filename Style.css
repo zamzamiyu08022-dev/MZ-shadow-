@@ -53,3 +53,27 @@ canvas {
   transform: scale(0.92);
   background: #555;
 }
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 15px auto;
+  max-width: 360px;
+}
+
+#controls button {
+  min-width: 72px;
+  height: 50px;
+  border: none;
+  border-radius: 12px;
+  background: #333;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  touch-action: manipulation;
+}
+
+#controls button:active {
+  transform: scale(0.92);
+}
