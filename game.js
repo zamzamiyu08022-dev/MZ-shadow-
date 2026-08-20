@@ -171,13 +171,25 @@ function update() {
   if (gameOver) return;
 
   // Level complete
-  if (!bossActive && score >= 500) {
+  
 
-    if (!levelComplete) {
+      if (!bossActive && score >= 500) {
 
-      levelComplete = true;
+  if (!levelComplete) {
 
-      setTimeout(() => {
+    levelComplete = true;
+
+    setTimeout(() => {
+
+      levelComplete = false;
+      startBoss();
+
+    }, 2500);
+
+  }
+
+  return;
+}setTimeout(() => {
 
         levelComplete = false;
         startBoss();
