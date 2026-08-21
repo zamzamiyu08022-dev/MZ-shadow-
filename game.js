@@ -43,8 +43,8 @@ const gravity = 0.6;
 const player = {
   x: 165,
   y: 450,
-  width: 30,
-  height: 50,
+  width: 40,
+height: 60,
   speed: 5,
   velocityY: 0,
   jumping: false
@@ -751,194 +751,211 @@ function draw() {
   );
 
 
-  // ==========================
-  // ZAMZAMIYU
-  // ==========================
+// ==========================
+// ZAMZAMIYU
+// ==========================
 
-  // LEGS
+// CHARACTER POSITION
 
-  ctx.fillStyle = "#030303";
+const px = player.x;
+const py = player.y;
 
-  ctx.fillRect(
-    player.x + 5,
-    player.y + 42,
-    8,
-    18
-  );
+// ==========================
+// LEGS
+// ==========================
 
-  ctx.fillRect(
-    player.x + 17,
-    player.y + 42,
-    8,
-    18
-  );
+ctx.fillStyle = "#050505";
 
+// LEFT LEG
+ctx.fillRect(
+  px + 5,
+  py + 35,
+  9,
+  25
+);
 
-  // SHOES
+// RIGHT LEG
+ctx.fillRect(
+  px + 17,
+  py + 35,
+  9,
+  25
+);
 
-  ctx.fillStyle = "#555";
+// SHOES
 
-  ctx.fillRect(
-    player.x + 2,
-    player.y + 57,
-    12,
-    5
-  );
+ctx.fillStyle = "#555";
 
-  ctx.fillRect(
-    player.x + 16,
-    player.y + 57,
-    12,
-    5
-  );
+ctx.fillRect(
+  px + 1,
+  py + 55,
+  14,
+  6
+);
 
+ctx.fillRect(
+  px + 16,
+  py + 55,
+  14,
+  6
+);
 
-  // BODY
+// ==========================
+// BODY
+// ==========================
 
-  ctx.fillStyle = "#080808";
+ctx.fillStyle = "#090909";
 
-  ctx.fillRect(
-    player.x + 5,
-    player.y + 8,
-    20,
-    38
-  );
+ctx.fillRect(
+  px + 4,
+  py + 10,
+  23,
+  30
+);
 
+// BODY ARMOR
 
-  // BODY ARMOR
+ctx.strokeStyle = "#777";
 
-  ctx.strokeStyle = "#555";
+ctx.lineWidth = 2;
 
-  ctx.lineWidth = 2;
+ctx.strokeRect(
+  px + 7,
+  py + 14,
+  17,
+  20
+);
 
-  ctx.strokeRect(
-    player.x + 7,
-    player.y + 12,
-    16,
-    27
-  );
+// ==========================
+// LEFT ARM
+// ==========================
 
+ctx.fillStyle = "#090909";
 
-  // LEFT ARM
+ctx.fillRect(
+  px - 8,
+  py + 12,
+  12,
+  28
+);
 
-  ctx.fillStyle = "#080808";
+// LEFT HAND
 
-  ctx.fillRect(
-    player.x - 7,
-    player.y + 12,
-    12,
-    28
-  );
+ctx.fillStyle = "#888";
 
+ctx.beginPath();
 
-  // RIGHT ARM
+ctx.arc(
+  px - 3,
+  py + 42,
+  6,
+  0,
+  Math.PI * 2
+);
 
-  ctx.fillRect(
-    player.x + 25,
-    player.y + 12,
-    12,
-    28
-  );
+ctx.fill();
 
+// ==========================
+// RIGHT ARM
+// ==========================
 
-  // HANDS
+ctx.fillStyle = "#090909";
 
-  ctx.fillStyle = "#777";
+ctx.fillRect(
+  px + 27,
+  py + 12,
+  12,
+  28
+);
 
-  ctx.beginPath();
+// RIGHT HAND
 
-  ctx.arc(
-    player.x - 2,
-    player.y + 40,
-    5,
-    0,
-    Math.PI * 2
-  );
+ctx.fillStyle = "#888";
 
-  ctx.fill();
+ctx.beginPath();
 
-  ctx.beginPath();
+ctx.arc(
+  px + 34,
+  py + 42,
+  6,
+  0,
+  Math.PI * 2
+);
 
-  ctx.arc(
-    player.x + 32,
-    player.y + 40,
-    5,
-    0,
-    Math.PI * 2
-  );
+ctx.fill();
 
-  ctx.fill();
+// ==========================
+// GUN
+// ==========================
 
+ctx.fillStyle = "#777";
 
-  // HEAD
+ctx.fillRect(
+  px + 32,
+  py + 27,
+  25,
+  7
+);
 
-  ctx.fillStyle = "#333";
+ctx.fillStyle = "#222";
 
-  ctx.beginPath();
+ctx.fillRect(
+  px + 47,
+  py + 32,
+  7,
+  12
+);
 
-  ctx.arc(
-    player.x + 15,
-    player.y + 1,
-    14,
-    0,
-    Math.PI * 2
-  );
+// ==========================
+// HEAD
+// ==========================
 
-  ctx.fill();
+ctx.fillStyle = "#444";
 
+ctx.beginPath();
 
-  // MASK
+ctx.arc(
+  px + 15,
+  py + 2,
+  15,
+  0,
+  Math.PI * 2
+);
 
-  ctx.fillStyle = "#050505";
+ctx.fill();
 
-  ctx.fillRect(
-    player.x + 2,
-    player.y - 2,
-    26,
-    12
-  );
+// ==========================
+// SHADOW MASK
+// ==========================
 
+ctx.fillStyle = "#050505";
 
-  // EYES
+ctx.fillRect(
+  px + 1,
+  py - 3,
+  28,
+  13
+);
 
-  ctx.fillStyle = "red";
+// ==========================
+// RED EYES
+// ==========================
 
-  ctx.fillRect(
-    player.x + 7,
-    player.y + 1,
-    5,
-    3
-  );
+ctx.fillStyle = "red";
 
-  ctx.fillRect(
-    player.x + 18,
-    player.y + 1,
-    5,
-    3
-  );
+ctx.fillRect(
+  px + 6,
+  py,
+  6,
+  4
+);
 
-
-  // GUN
-
-  ctx.fillStyle = "#777";
-
-  ctx.fillRect(
-    player.x + 28,
-    player.y + 25,
-    22,
-    7
-  );
-
-  ctx.fillStyle = "#222";
-
-  ctx.fillRect(
-    player.x + 42,
-    player.y + 30,
-    6,
-    12
-  );
-
-
+ctx.fillRect(
+  px + 18,
+  py,
+  6,
+  4
+);
   // ==========================
   // ENEMIES
   // ==========================
