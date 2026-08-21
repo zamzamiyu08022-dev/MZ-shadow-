@@ -30,6 +30,7 @@ let enemies = [];
 let coinItems = [];
 let bullets = [];
 let bossBullets = [];
+let explosions = [];
 
 let boss = null;
 
@@ -375,18 +376,16 @@ function update() {
 
      score += 20;
 
-enemiesKilled++;
+explosions.push({
+  x: enemy.x + enemy.width / 2,
+  y: enemy.y + enemy.height / 2,
+  radius: 5,
+  life: 20
+});
 
-if (enemiesKilled >= 10 && !bossStarted) {
+enemy.y = 700;
 
-  bossStarted = true;
-
-  startBoss();
-} 
-
-        enemy.y = 700;
-
-        bullet.y = -100;
+bullet.y = -100;
 
       }
 
@@ -528,7 +527,21 @@ if (
       bullet => bullet.y < 600
     );
 
-}
+// ==========================
+// EXPLOSIONS
+// ==========================
+
+explosions.forEach(explosion => {
+
+  explosion.radius += 2;
+  explosion.life--;
+
+});
+
+explosions =
+  explosions.filter(
+    explosion => explosion.life > 0
+  );}
 
 // ==========================
 // DRAW
@@ -545,7 +558,102 @@ function draw() {
     0,
     canvas.width,
     canvas.height
+  );// ==========================
+// NIGHT SKY
+// ==========================
+
+ctx.fillStyle = "#050816";
+
+ctx.fillRect(
+  0,
+  0,
+  canvas.width,
+  500
+);
+
+// ==========================
+// MOON
+// ==========================
+
+ctx.fillStyle = "#eeeecc";
+
+ctx.beginPath();
+
+ctx.arc(
+  285,
+  90,
+  35,
+  0,
+  Math.PI * 2
+);
+
+ctx.fill();
+
+// MOON SHADOW
+
+ctx.fillStyle = "#050816";
+
+ctx.beginPath();
+
+ctx.arc(
+  300,
+  78,
+  32,
+  0,
+  Math.PI * 2
+);
+
+ctx.fill();
+
+// ==========================
+// CITY BUILDINGS
+// ==========================
+
+const buildings = [
+  { x: 0, y: 350, w: 55, h: 150 },
+  { x: 60, y: 300, w: 45, h: 200 },
+  { x: 110, y: 370, w: 50, h: 130 },
+  { x: 165, y: 320, w: 55, h: 180 },
+  { x: 225, y: 360, w: 45, h: 140 },
+  { x: 275, y: 290, w: 50, h: 210 },
+  { x: 330, y: 340, w: 30, h: 160 }
+];
+
+ctx.fillStyle = "#10131f";
+
+buildings.forEach(building => {
+
+  ctx.fillRect(
+    building.x,
+    building.y,
+    building.w,
+    building.h
   );
+
+});
+
+// ==========================
+// BUILDING WINDOWS
+// ==========================
+
+ctx.fillStyle = "#ffd966";
+
+for (let i = 0; i < 30; i++) {
+
+  const x =
+    (i * 47) % 340 + 5;
+
+  const y =
+    320 + ((i * 31) % 150);
+
+  ctx.fillRect(
+    x,
+    y,
+    5,
+    7
+  );
+
+}
 
   // STARS
 
@@ -1028,7 +1136,41 @@ ctx.fillRect(
       115,
       352
     );
+// ==========================
+// EXPLOSIONS
+// ==========================
 
+explosions.forEach(explosion => {
+
+  ctx.beginPath();
+
+  ctx.arc(
+    explosion.x,
+    explosion.y,
+    explosion.radius,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fillStyle = "orange";
+
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    explosion.x,
+    explosion.y,
+    explosion.radius / 2,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fillStyle = "yellow";
+
+  ctx.fill();
+
+});
   }
 
   // ==========================
