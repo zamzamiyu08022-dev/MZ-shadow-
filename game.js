@@ -31,6 +31,9 @@ let coinItems = [];
 let bullets = [];
 let bossBullets = [];
 let explosions = [];
+let animationTime = 0;
+let gunFlash = 0;
+
 
 let boss = null;
 
@@ -150,6 +153,7 @@ function shoot() {
     speed: 8
 
   });
+  gunFlash = 5;
 }
 
 // ==========================
@@ -243,7 +247,11 @@ function nextLevel() {
 // UPDATE
 // ==========================
 
-function update() {
+function update() {animationTime += 0.15;
+
+if (gunFlash > 0) {
+  gunFlash--;
+}
 
   if (gameOver || levelComplete) {
     return;
@@ -759,29 +767,31 @@ function draw() {
 
 const px = player.x;
 const py = player.y;
+// ==========================
+// ANIMATED LEGS
+// ==========================
 
-// ==========================
-// LEGS
-// ==========================
+const walk = Math.sin(animationTime * 4) * 4;
 
 ctx.fillStyle = "#050505";
 
 // LEFT LEG
+
 ctx.fillRect(
   px + 5,
-  py + 35,
+  py + 35 + walk,
   9,
   25
 );
 
 // RIGHT LEG
+
 ctx.fillRect(
   px + 17,
-  py + 35,
+  py + 35 - walk,
   9,
   25
 );
-
 // SHOES
 
 ctx.fillStyle = "#555";
