@@ -657,6 +657,366 @@ shootButton.addEventListener(
 
   }
 
-);
+function update() {
+
+  if (gameOver || levelComplete) return;
+
+  // PLAYER MOVEMENT
+  if (left) {
+    player.x -= player.speed;
+  }
+
+  if (right) {
+    player.x += player.speed;
+  }
+
+  // Keep player inside screen
+  if (player.x < 0) {
+    player.x = 0;
+  }
+
+  if (player.x + player.width > canvas.width) {
+    player.x = canvas.width - player.width;
+  }
+
+  // GRAVITY
+  player.y += player.velocityY;
+  player.velocityY += gravity;
+
+  // Ground
+  if (player.y + player.height >= 500) {
+
+    player.y = 500 - player.height;
+    player.velocityY = 0;
+    player.jumping = false;
+
+  }
+
+  // ENEMIES
+  enemies.forEach(enemy => {
+
+    enemy.y += enemy.speed;
+
+    if (collision(player, enemy)) {
+
+      lives--;
+      enemy.y = 600;
+
+      if (lives <= 0) {
+        gameOver = true;
+      }
+
+    }
+
+  });
+
+  enemies = enemies.filter(enemy => enemy.y < 600);
+
+  // COINS
+  coins.forEach(coin => {
+
+    if (collision(player, coin)) {
+
+      coinCount++;
+      score += 10;
+      coin.y = 700;
+
+    }
+
+  });
+
+  coins = coins.filter(coin => coin.y < 600);
+
+  // PLAYER BULLETS
+  bullets.forEach(bullet => {
+
+    bullet.y -= bullet.speed;
+
+    // Hit enemies
+    enemies.forEach(enemy => {
+
+      if (collision(bullet, enemy)) {
+
+        score += 20;
+
+        enemy.y = 700;
+        bullet.y = -100;
+
+      }
+
+    });
+
+    // Hit boss
+    if (bossActive && boss && collision(bullet, boss)) {
+
+      boss.health--;
+
+      bullet.y = -100;
+
+      if (boss.health <= 0) {
+
+        boss = null;
+        bossActive = false;
+        levelComplete = true;
+        score += 500;
+
+      }
+
+    }
+
+  });
+
+  bullets = bullets.filter(bullet => bullet.y > -50);
+
+  // START BOSS
+  if (score >= 200 && !bossActive && !levelComplete) {
+
+    startBoss();
+
+  }
+
+  // BOSS MOVEMENT
+  if (bossActive && boss) {
+
+    boss.x += boss.speed * boss.direction;
+
+    if (boss.x <= 0) {
+      boss.direction = 1;
+    }
+
+    if (boss.x + boss.width >= canvas.width) {
+      boss.direction = -1;
+    }
+
+    // Boss shooting
+    if (Math.random() < 0.02) {
+
+      bossBullets.push({
+
+        x: boss.x + boss.width / 2 - 4,
+        y: boss.y + boss.height,
+        width: 8,
+        height: 15,
+        speed: 5
+
+      });
+
+    }
+
+  }
+
+  // BOSS BULLETS
+  bossBullets.forEach(bullet => {
+
+    bullet.y += bullet.speed;
+
+    if (collision(player, bullet)) {
+
+      lives--;
+      bullet.y = 700;
+
+      if (lives <= 0) {
+        gameOver = true;
+      }
+
+    }
+
+  });
+
+  bossBullets =
+    bossBullets.filter(bullet => bullet.y < 600);
+
+}
+
+
+// GAME LOOP
+function gameLoop() {
+
+  update();
+
+  draw();
+
+  requestAnimationFrame(gameLoop)function update() {
+
+  if (gameOver || levelComplete) return;
+
+  // PLAYER MOVEMENT
+  if (left) {
+    player.x -= player.speed;
+  }
+
+  if (right) {
+    player.x += player.speed;
+  }
+
+  // Keep player inside screen
+  if (player.x < 0) {
+    player.x = 0;
+  }
+
+  if (player.x + player.width > canvas.width) {
+    player.x = canvas.width - player.width;
+  }
+
+  // GRAVITY
+  player.y += player.velocityY;
+  player.velocityY += gravity;
+
+  // Ground
+  if (player.y + player.height >= 500) {
+
+    player.y = 500 - player.height;
+    player.velocityY = 0;
+    player.jumping = false;
+
+  }
+
+  // ENEMIES
+  enemies.forEach(enemy => {
+
+    enemy.y += enemy.speed;
+
+    if (collision(player, enemy)) {
+
+      lives--;
+      enemy.y = 600;
+
+      if (lives <= 0) {
+        gameOver = true;
+      }
+
+    }
+
+  });
+
+  enemies = enemies.filter(enemy => enemy.y < 600);
+
+  // COINS
+  coins.forEach(coin => {
+
+    if (collision(player, coin)) {
+
+      coinCount++;
+      score += 10;
+      coin.y = 700;
+
+    }
+
+  });
+
+  coins = coins.filter(coin => coin.y < 600);
+
+  // PLAYER BULLETS
+  bullets.forEach(bullet => {
+
+    bullet.y -= bullet.speed;
+
+    // Hit enemies
+    enemies.forEach(enemy => {
+
+      if (collision(bullet, enemy)) {
+
+        score += 20;
+
+        enemy.y = 700;
+        bullet.y = -100;
+
+      }
+
+    });
+
+    // Hit boss
+    if (bossActive && boss && collision(bullet, boss)) {
+
+      boss.health--;
+
+      bullet.y = -100;
+
+      if (boss.health <= 0) {
+
+        boss = null;
+        bossActive = false;
+        levelComplete = true;
+        score += 500;
+
+      }
+
+    }
+
+  });
+
+  bullets = bullets.filter(bullet => bullet.y > -50);
+
+  // START BOSS
+  if (score >= 200 && !bossActive && !levelComplete) {
+
+    startBoss();
+
+  }
+
+  // BOSS MOVEMENT
+  if (bossActive && boss) {
+
+    boss.x += boss.speed * boss.direction;
+
+    if (boss.x <= 0) {
+      boss.direction = 1;
+    }
+
+    if (boss.x + boss.width >= canvas.width) {
+      boss.direction = -1;
+    }
+
+    // Boss shooting
+    if (Math.random() < 0.02) {
+
+      bossBullets.push({
+
+        x: boss.x + boss.width / 2 - 4,
+        y: boss.y + boss.height,
+        width: 8,
+        height: 15,
+        speed: 5
+
+      });
+
+    }
+
+  }
+
+  // BOSS BULLETS
+  bossBullets.forEach(bullet => {
+
+    bullet.y += bullet.speed;
+
+    if (collision(player, bullet)) {
+
+      lives--;
+      bullet.y = 700;
+
+      if (lives <= 0) {
+        gameOver = true;
+      }
+
+    }
+
+  });
+
+  bossBullets =
+    bossBullets.filter(bullet => bullet.y < 600);
+
+}
+
+
+// GAME LOOP
+function gameLoop() {
+
+  update();
+
+  draw();
+
+  requestAnimationFrame(gameLoop);
+
+}
 
 gameLoop();
