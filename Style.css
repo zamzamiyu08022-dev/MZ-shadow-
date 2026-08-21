@@ -1,8 +1,19 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
+
   margin: 0;
+
   min-height: 100vh;
 
-  background: #111;
+  background:
+    radial-gradient(
+      circle at top,
+      #17204a,
+      #05060d 70%
+    );
 
   color: white;
 
@@ -13,30 +24,268 @@ body {
   overflow: hidden;
 }
 
-h1 {
-  margin: 15px 0 5px;
+
+/* ==========================
+   MAIN MENU
+========================== */
+
+#menu {
+
+  position: fixed;
+
+  inset: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 20;
+}
+
+
+#menu h1 {
+
+  font-size: 45px;
+
+  letter-spacing: 7px;
+
+  margin: 0;
+
+  text-shadow:
+    0 0 10px red,
+    0 0 25px purple;
+}
+
+
+#menu p {
+
+  color: #aaa;
+
+  letter-spacing: 5px;
+
+  margin-bottom: 35px;
+}
+
+
+/* ==========================
+   BUTTONS
+========================== */
+
+button {
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #252525;
+
+  color: white;
+
+  font-size: 17px;
+
+  font-weight: bold;
+
+  padding: 14px 25px;
+
+  margin: 7px;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+
+}
+
+
+button:active {
+
+  transform: scale(.92);
+
+  background: #444;
+}
+
+
+#playBtn {
+
+  background: #8b0000;
+
+  width: 200px;
+
+}
+
+
+#settingsBtn {
+
+  width: 200px;
+
+}
+
+
+/* ==========================
+   SETTINGS
+========================== */
+
+#settings {
+
+  position: fixed;
+
+  inset: 0;
+
+  display: none;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 30;
+
+  background: #05060d;
+}
+
+
+#settings h2 {
+
+  font-size: 30px;
+
+  margin-bottom: 25px;
+}
+
+
+/* ==========================
+   GAME UI
+========================== */
+
+#gameUI {
+
+  position: fixed;
+
+  top: 10px;
+
+  right: 10px;
+
+  z-index: 10;
+}
+
+
+#pauseBtn {
+
+  width: 50px;
+
+  height: 50px;
+
+  padding: 0;
+
+  font-size: 22px;
+
+  background: rgba(
+    0,
+    0,
+    0,
+    .6
+  );
+}
+
+
+/* ==========================
+   PAUSE MENU
+========================== */
+
+#pauseMenu {
+
+  position: fixed;
+
+  inset: 0;
+
+  display: none;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 40;
+
+  background: rgba(
+    0,
+    0,
+    0,
+    .85
+  );
+}
+
+
+#pauseMenu h2 {
 
   font-size: 32px;
 
-  letter-spacing: 4px;
+  margin-bottom: 25px;
 }
 
-h2 {
-  margin: 0 0 10px;
 
-  color: #aaa;
+/* ==========================
+   CONTROLS
+========================== */
+
+#controls {
+
+  position: fixed;
+
+  bottom: 15px;
+
+  left: 0;
+
+  right: 0;
+
+  display: none;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 8px;
+
+  z-index: 15;
 }
+
+
+#controls button {
+
+  min-width: 70px;
+
+  height: 52px;
+
+  padding: 8px;
+
+  background: rgba(
+    40,
+    40,
+    40,
+    .85
+  );
+}
+
+
+/* ==========================
+   CANVAS
+========================== */
 
 canvas {
+
   display: block;
 
   width: 360px;
 
-  max-width: 95vw;
+  max-width: 96vw;
 
   height: auto;
 
-  margin: auto;
+  margin: 0 auto;
 
   border: 2px solid white;
 
@@ -44,59 +293,4 @@ canvas {
 
   touch-action: none;
 
-  background: #111;
-}
-
-#controls {
-
-  display: flex;
-
-  flex-wrap: wrap;
-
-  justify-content: center;
-
-  gap: 10px;
-
-  margin: 15px auto;
-
-  max-width: 360px;
-}
-
-#controls button {
-
-  min-width: 75px;
-
-  height: 55px;
-
-  border: none;
-
-  border-radius: 14px;
-
-  background: #333;
-
-  color: white;
-
-  font-size: 16px;
-
-  font-weight: bold;
-
-  touch-action: manipulation;
-
-  -webkit-user-select: none;
-
-  user-select: none;
-}
-
-#controls button:active {
-
-  transform: scale(0.92);
-
-  background: #555;
-}
-
-#shoot {
-
-  background: #8b0000 !important;
-
-  min-width: 100px !important;
 }
