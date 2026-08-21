@@ -1,41 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>MZ Shadow</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>MZ SHADOW</title>
 
   <link rel="stylesheet" href="Style.css">
 </head>
 
 <body>
 
-  <h1>MZ SHADOW</h1>
+  <div id="menu">
 
-  <h2>Zamzamiyu</h2>
+    <h1>MZ SHADOW</h1>
 
-  <div id="game"></div>
+    <p>ZAMZAMIYU</p>
+
+    <button id="playBtn">▶ PLAY</button>
+
+    <button id="settingsBtn">⚙ SETTINGS</button>
+
+  </div>
+
+
+  <div id="settings">
+
+    <h2>SETTINGS</h2>
+
+    <button id="soundBtn">
+      🔊 SOUND: ON
+    </button>
+
+    <button id="musicBtn">
+      🎵 MUSIC: ON
+    </button>
+
+    <button id="backBtn">
+      ← BACK
+    </button>
+
+  </div>
+
+
+  <div id="gameUI">
+
+    <button id="pauseBtn">
+      ⏸
+    </button>
+
+  </div>
+
+
+  <div id="pauseMenu">
+
+    <h2>GAME PAUSED</h2>
+
+    <button id="resumeBtn">
+      ▶ RESUME
+    </button>
+
+    <button id="restartBtn">
+      🔄 RESTART
+    </button>
+
+    <button id="menuBtn">
+      🏠 MAIN MENU
+    </button>
+
+  </div>
+
 
   <div id="controls">
 
     <button id="left">◀</button>
 
-    <button id="jump">JUMP</button>
+    <button id="jump">
+      JUMP
+    </button>
 
     <button id="right">▶</button>
 
-    <button id="shoot">🔫 FIRE</button>
+    <button id="shoot">
+      🔫 FIRE
+    </button>
 
   </div>
+
 
   <script src="game.js"></script>
 
 </body>
-
 </html>
