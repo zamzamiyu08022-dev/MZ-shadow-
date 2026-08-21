@@ -582,40 +582,124 @@ function draw() {
   // ==========================
   // PLAYER
   // ==========================
+// ==========================
+// ZAMZAMIYU SHADOW CHARACTER
+// ==========================
 
-  ctx.fillStyle = "white";
+// BODY
 
-  ctx.fillRect(
+ctx.fillStyle = "#050505";
 
-    player.x,
+ctx.fillRect(
+  player.x + 5,
+  player.y + 10,
+  20,
+  40
+);
 
-    player.y,
+// HEAD
 
-    player.width,
+ctx.fillStyle = "#222";
 
-    player.height
+ctx.beginPath();
 
-  );
+ctx.arc(
+  player.x + 15,
+  player.y,
+  13,
+  0,
+  Math.PI * 2
+);
 
-  // HEAD
+ctx.fill();
 
-  ctx.fillStyle = "#ddd";
+// SHADOW MASK
 
-  ctx.fillRect(
+ctx.fillStyle = "#000";
 
-    player.x + 5,
+ctx.fillRect(
+  player.x + 3,
+  player.y - 3,
+  24,
+  10
+);
 
-    player.y - 12,
+// RED EYES
 
-    20,
+ctx.fillStyle = "red";
 
-    18
+ctx.fillRect(
+  player.x + 7,
+  player.y - 1,
+  5,
+  3
+);
 
-  );
+ctx.fillRect(
+  player.x + 18,
+  player.y - 1,
+  5,
+  3
+);
 
-  // EYES
+// LEFT ARM
 
-  ctx.fillStyle = "red";
+ctx.fillStyle = "#050505";
+
+ctx.fillRect(
+  player.x - 5,
+  player.y + 12,
+  10,
+  25
+);
+
+// RIGHT ARM
+
+ctx.fillRect(
+  player.x + 25,
+  player.y + 12,
+  10,
+  25
+);
+
+// GUN
+
+ctx.fillStyle = "#555";
+
+ctx.fillRect(
+  player.x + 28,
+  player.y + 25,
+  18,
+  7
+);
+
+ctx.fillStyle = "#222";
+
+ctx.fillRect(
+  player.x + 40,
+  player.y + 22,
+  6,
+  12
+);
+
+// LEGS
+
+ctx.fillStyle = "#030303";
+
+ctx.fillRect(
+  player.x + 5,
+  player.y + 48,
+  8,
+  10
+);
+
+ctx.fillRect(
+  player.x + 17,
+  player.y + 48,
+  8,
+  10
+);
+
 
   ctx.fillRect(
 
