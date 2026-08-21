@@ -549,123 +549,30 @@ explosions =
 
 function draw() {
 
-  // BACKGROUND
+  // ==========================
+  // NIGHT BACKGROUND
+  // ==========================
 
-  ctx.fillStyle = "#111";
+  ctx.fillStyle = "#050816";
 
   ctx.fillRect(
     0,
     0,
     canvas.width,
     canvas.height
-  );// ==========================
-// NIGHT SKY
-// ==========================
-
-ctx.fillStyle = "#050816";
-
-ctx.fillRect(
-  0,
-  0,
-  canvas.width,
-  500
-);
-
-// ==========================
-// MOON
-// ==========================
-
-ctx.fillStyle = "#eeeecc";
-
-ctx.beginPath();
-
-ctx.arc(
-  285,
-  90,
-  35,
-  0,
-  Math.PI * 2
-);
-
-ctx.fill();
-
-// MOON SHADOW
-
-ctx.fillStyle = "#050816";
-
-ctx.beginPath();
-
-ctx.arc(
-  300,
-  78,
-  32,
-  0,
-  Math.PI * 2
-);
-
-ctx.fill();
-
-// ==========================
-// CITY BUILDINGS
-// ==========================
-
-const buildings = [
-  { x: 0, y: 350, w: 55, h: 150 },
-  { x: 60, y: 300, w: 45, h: 200 },
-  { x: 110, y: 370, w: 50, h: 130 },
-  { x: 165, y: 320, w: 55, h: 180 },
-  { x: 225, y: 360, w: 45, h: 140 },
-  { x: 275, y: 290, w: 50, h: 210 },
-  { x: 330, y: 340, w: 30, h: 160 }
-];
-
-ctx.fillStyle = "#10131f";
-
-buildings.forEach(building => {
-
-  ctx.fillRect(
-    building.x,
-    building.y,
-    building.w,
-    building.h
   );
 
-});
 
-// ==========================
-// BUILDING WINDOWS
-// ==========================
-
-ctx.fillStyle = "#ffd966";
-
-for (let i = 0; i < 30; i++) {
-
-  const x =
-    (i * 47) % 340 + 5;
-
-  const y =
-    320 + ((i * 31) % 150);
-
-  ctx.fillRect(
-    x,
-    y,
-    5,
-    7
-  );
-
-}
-
+  // ==========================
   // STARS
+  // ==========================
 
-  ctx.fillStyle = "#333";
+  ctx.fillStyle = "white";
 
-  for (let i = 0; i < 35; i++) {
+  for (let i = 0; i < 45; i++) {
 
-    const x =
-      (i * 97) % 360;
-
-    const y =
-      (i * 53) % 480;
+    const x = (i * 83) % 360;
+    const y = (i * 47) % 300;
 
     ctx.fillRect(
       x,
@@ -673,165 +580,364 @@ for (let i = 0; i < 30; i++) {
       2,
       2
     );
-
   }
 
-  // GROUND
 
-  ctx.fillStyle = "#222";
+  // ==========================
+  // MOON
+  // ==========================
+
+  ctx.fillStyle = "#fff4bd";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    285,
+    90,
+    38,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+
+  // Moon shadow
+
+  ctx.fillStyle = "#050816";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    302,
+    75,
+    34,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+
+  // ==========================
+  // CITY
+  // ==========================
+
+  const buildings = [
+
+    {
+      x: 0,
+      y: 350,
+      width: 55,
+      height: 150
+    },
+
+    {
+      x: 60,
+      y: 300,
+      width: 45,
+      height: 200
+    },
+
+    {
+      x: 110,
+      y: 365,
+      width: 50,
+      height: 135
+    },
+
+    {
+      x: 165,
+      y: 315,
+      width: 55,
+      height: 185
+    },
+
+    {
+      x: 225,
+      y: 360,
+      width: 45,
+      height: 140
+    },
+
+    {
+      x: 275,
+      y: 285,
+      width: 50,
+      height: 215
+    },
+
+    {
+      x: 330,
+      y: 335,
+      width: 30,
+      height: 165
+    }
+
+  ];
+
+
+  ctx.fillStyle = "#101321";
+
+  buildings.forEach(building => {
+
+    ctx.fillRect(
+      building.x,
+      building.y,
+      building.width,
+      building.height
+    );
+
+  });
+
+
+  // ==========================
+  // BUILDING WINDOWS
+  // ==========================
+
+  ctx.fillStyle = "#ffd966";
+
+  buildings.forEach(building => {
+
+    for (
+      let y = building.y + 20;
+      y < 490;
+      y += 30
+    ) {
+
+      for (
+        let x = building.x + 10;
+        x < building.x + building.width - 5;
+        x += 20
+      ) {
+
+        ctx.fillRect(
+          x,
+          y,
+          6,
+          9
+        );
+
+      }
+
+    }
+
+  });
+
+
+  // ==========================
+  // GROUND
+  // ==========================
+
+  ctx.fillStyle = "#151515";
 
   ctx.fillRect(
     0,
     500,
-    360,
+    canvas.width,
     60
   );
 
-  // ==========================
-  // PLAYER
-  // ==========================
-// ==========================
-// ZAMZAMIYU SHADOW CHARACTER
-// ==========================
 
-// BODY
+  // Road line
 
-ctx.fillStyle = "#050505";
-
-ctx.fillRect(
-  player.x + 5,
-  player.y + 10,
-  20,
-  40
-);
-
-// HEAD
-
-ctx.fillStyle = "#222";
-
-ctx.beginPath();
-
-ctx.arc(
-  player.x + 15,
-  player.y,
-  13,
-  0,
-  Math.PI * 2
-);
-
-ctx.fill();
-
-// SHADOW MASK
-
-ctx.fillStyle = "#000";
-
-ctx.fillRect(
-  player.x + 3,
-  player.y - 3,
-  24,
-  10
-);
-
-// RED EYES
-
-ctx.fillStyle = "red";
-
-ctx.fillRect(
-  player.x + 7,
-  player.y - 1,
-  5,
-  3
-);
-
-ctx.fillRect(
-  player.x + 18,
-  player.y - 1,
-  5,
-  3
-);
-
-// LEFT ARM
-
-ctx.fillStyle = "#050505";
-
-ctx.fillRect(
-  player.x - 5,
-  player.y + 12,
-  10,
-  25
-);
-
-// RIGHT ARM
-
-ctx.fillRect(
-  player.x + 25,
-  player.y + 12,
-  10,
-  25
-);
-
-// GUN
-
-ctx.fillStyle = "#555";
-
-ctx.fillRect(
-  player.x + 28,
-  player.y + 25,
-  18,
-  7
-);
-
-ctx.fillStyle = "#222";
-
-ctx.fillRect(
-  player.x + 40,
-  player.y + 22,
-  6,
-  12
-);
-
-// LEGS
-
-ctx.fillStyle = "#030303";
-
-ctx.fillRect(
-  player.x + 5,
-  player.y + 48,
-  8,
-  10
-);
-
-ctx.fillRect(
-  player.x + 17,
-  player.y + 48,
-  8,
-  10
-);
-
+  ctx.fillStyle = "#444";
 
   ctx.fillRect(
-
-    player.x + 8,
-
-    player.y - 6,
-
-    4,
-
+    0,
+    525,
+    canvas.width,
     4
+  );
 
+
+  // ==========================
+  // ZAMZAMIYU
+  // ==========================
+
+  // LEGS
+
+  ctx.fillStyle = "#030303";
+
+  ctx.fillRect(
+    player.x + 5,
+    player.y + 42,
+    8,
+    18
   );
 
   ctx.fillRect(
+    player.x + 17,
+    player.y + 42,
+    8,
+    18
+  );
 
+
+  // SHOES
+
+  ctx.fillStyle = "#555";
+
+  ctx.fillRect(
+    player.x + 2,
+    player.y + 57,
+    12,
+    5
+  );
+
+  ctx.fillRect(
+    player.x + 16,
+    player.y + 57,
+    12,
+    5
+  );
+
+
+  // BODY
+
+  ctx.fillStyle = "#080808";
+
+  ctx.fillRect(
+    player.x + 5,
+    player.y + 8,
+    20,
+    38
+  );
+
+
+  // BODY ARMOR
+
+  ctx.strokeStyle = "#555";
+
+  ctx.lineWidth = 2;
+
+  ctx.strokeRect(
+    player.x + 7,
+    player.y + 12,
+    16,
+    27
+  );
+
+
+  // LEFT ARM
+
+  ctx.fillStyle = "#080808";
+
+  ctx.fillRect(
+    player.x - 7,
+    player.y + 12,
+    12,
+    28
+  );
+
+
+  // RIGHT ARM
+
+  ctx.fillRect(
+    player.x + 25,
+    player.y + 12,
+    12,
+    28
+  );
+
+
+  // HANDS
+
+  ctx.fillStyle = "#777";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x - 2,
+    player.y + 40,
+    5,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x + 32,
+    player.y + 40,
+    5,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+
+  // HEAD
+
+  ctx.fillStyle = "#333";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    player.x + 15,
+    player.y + 1,
+    14,
+    0,
+    Math.PI * 2
+  );
+
+  ctx.fill();
+
+
+  // MASK
+
+  ctx.fillStyle = "#050505";
+
+  ctx.fillRect(
+    player.x + 2,
+    player.y - 2,
+    26,
+    12
+  );
+
+
+  // EYES
+
+  ctx.fillStyle = "red";
+
+  ctx.fillRect(
+    player.x + 7,
+    player.y + 1,
+    5,
+    3
+  );
+
+  ctx.fillRect(
     player.x + 18,
-
-    player.y - 6,
-
-    4,
-
-    4
-
+    player.y + 1,
+    5,
+    3
   );
+
+
+  // GUN
+
+  ctx.fillStyle = "#777";
+
+  ctx.fillRect(
+    player.x + 28,
+    player.y + 25,
+    22,
+    7
+  );
+
+  ctx.fillStyle = "#222";
+
+  ctx.fillRect(
+    player.x + 42,
+    player.y + 30,
+    6,
+    12
+  );
+
 
   // ==========================
   // ENEMIES
@@ -839,47 +945,33 @@ ctx.fillRect(
 
   enemies.forEach(enemy => {
 
-    ctx.fillStyle = "#777";
+    ctx.fillStyle = "#555";
 
     ctx.fillRect(
-
       enemy.x,
-
       enemy.y,
-
       enemy.width,
-
       enemy.height
-
     );
 
     ctx.fillStyle = "red";
 
     ctx.fillRect(
-
       enemy.x + 6,
-
       enemy.y + 8,
-
       5,
-
       5
-
     );
 
     ctx.fillRect(
-
       enemy.x + 19,
-
       enemy.y + 8,
-
       5,
-
       5
-
     );
 
   });
+
 
   // ==========================
   // COINS
@@ -892,22 +984,17 @@ ctx.fillRect(
     ctx.beginPath();
 
     ctx.arc(
-
       coin.x + 9,
-
       coin.y + 9,
-
       9,
-
       0,
-
       Math.PI * 2
-
     );
 
     ctx.fill();
 
   });
+
 
   // ==========================
   // BULLETS
@@ -918,18 +1005,14 @@ ctx.fillRect(
   bullets.forEach(bullet => {
 
     ctx.fillRect(
-
       bullet.x,
-
       bullet.y,
-
       bullet.width,
-
       bullet.height
-
     );
 
   });
+
 
   // ==========================
   // BOSS
@@ -937,49 +1020,53 @@ ctx.fillRect(
 
   if (bossActive && boss) {
 
-    ctx.fillStyle = "purple";
+    ctx.fillStyle = "#5b168a";
 
     ctx.fillRect(
-
       boss.x,
-
       boss.y,
-
       boss.width,
-
       boss.height
-
     );
 
-    // BOSS EYES
+
+    // Boss head
+
+    ctx.fillStyle = "#301044";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      boss.x + 60,
+      boss.y + 30,
+      28,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    // Boss eyes
 
     ctx.fillStyle = "red";
 
     ctx.fillRect(
-
-      boss.x + 25,
-
+      boss.x + 42,
       boss.y + 25,
-
-      15,
-
-      15
-
+      12,
+      8
     );
 
     ctx.fillRect(
-
-      boss.x + 80,
-
+      boss.x + 66,
       boss.y + 25,
-
-      15,
-
-      15
-
+      12,
+      8
     );
 
-    // HEALTH BACKGROUND
+
+    // Boss health background
 
     ctx.fillStyle = "red";
 
@@ -990,23 +1077,19 @@ ctx.fillRect(
       18
     );
 
-    // HEALTH
+
+    // Boss health
 
     ctx.fillStyle = "lime";
 
     ctx.fillRect(
-
       50,
-
       20,
-
       260 *
-      (boss.health /
-       boss.maxHealth),
-
+      (boss.health / boss.maxHealth),
       18
-
     );
+
 
     ctx.fillStyle = "white";
 
@@ -1020,6 +1103,7 @@ ctx.fillRect(
 
   }
 
+
   // ==========================
   // BOSS BULLETS
   // ==========================
@@ -1029,26 +1113,60 @@ ctx.fillRect(
   bossBullets.forEach(bullet => {
 
     ctx.fillRect(
-
       bullet.x,
-
       bullet.y,
-
       bullet.width,
-
       bullet.height
-
     );
 
   });
 
+
   // ==========================
-  // UI
+  // EXPLOSIONS
+  // ==========================
+
+  explosions.forEach(explosion => {
+
+    ctx.beginPath();
+
+    ctx.arc(
+      explosion.x,
+      explosion.y,
+      explosion.radius,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle = "orange";
+
+    ctx.fill();
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      explosion.x,
+      explosion.y,
+      explosion.radius / 2,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fillStyle = "yellow";
+
+    ctx.fill();
+
+  });
+
+
+  // ==========================
+  // GAME UI
   // ==========================
 
   ctx.fillStyle = "white";
 
-  ctx.font = "18px Arial";
+  ctx.font = "17px Arial";
 
   ctx.fillText(
     "MZ SHADOW",
@@ -1082,6 +1200,7 @@ ctx.fillRect(
     105
   );
 
+
   // ==========================
   // LEVEL COMPLETE
   // ==========================
@@ -1089,7 +1208,7 @@ ctx.fillRect(
   if (levelComplete) {
 
     ctx.fillStyle =
-      "rgba(0,0,0,0.75)";
+      "rgba(0,0,0,0.8)";
 
     ctx.fillRect(
       0,
@@ -1136,42 +1255,9 @@ ctx.fillRect(
       115,
       352
     );
-// ==========================
-// EXPLOSIONS
-// ==========================
 
-explosions.forEach(explosion => {
-
-  ctx.beginPath();
-
-  ctx.arc(
-    explosion.x,
-    explosion.y,
-    explosion.radius,
-    0,
-    Math.PI * 2
-  );
-
-  ctx.fillStyle = "orange";
-
-  ctx.fill();
-
-  ctx.beginPath();
-
-  ctx.arc(
-    explosion.x,
-    explosion.y,
-    explosion.radius / 2,
-    0,
-    Math.PI * 2
-  );
-
-  ctx.fillStyle = "yellow";
-
-  ctx.fill();
-
-});
   }
+
 
   // ==========================
   // GAME OVER
@@ -1180,7 +1266,7 @@ explosions.forEach(explosion => {
   if (gameOver) {
 
     ctx.fillStyle =
-      "rgba(0,0,0,0.75)";
+      "rgba(0,0,0,0.8)";
 
     ctx.fillRect(
       0,
