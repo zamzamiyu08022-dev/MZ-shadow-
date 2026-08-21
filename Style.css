@@ -1,79 +1,102 @@
 body {
   margin: 0;
   min-height: 100vh;
+
   background: #111;
+
   color: white;
+
   font-family: Arial, sans-serif;
+
   text-align: center;
+
   overflow: hidden;
 }
 
 h1 {
   margin: 15px 0 5px;
+
   font-size: 32px;
+
   letter-spacing: 4px;
 }
 
 h2 {
   margin: 0 0 10px;
+
   color: #aaa;
 }
 
 canvas {
   display: block;
+
   width: 360px;
+
   max-width: 95vw;
+
   height: auto;
+
   margin: auto;
+
   border: 2px solid white;
+
   border-radius: 12px;
+
   touch-action: none;
+
+  background: #111;
 }
 
 #controls {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 15px;
-}
 
-#controls button {
-  width: 85px;
-  height: 55px;
-  border: none;
-  border-radius: 14px;
-  background: #333;
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-  touch-action: manipulation;
-}
-
-#controls button:active {
-  transform: scale(0.92);
-  background: #555;
-}
-#controls {
   display: flex;
+
   flex-wrap: wrap;
+
   justify-content: center;
-  gap: 8px;
+
+  gap: 10px;
+
   margin: 15px auto;
+
   max-width: 360px;
 }
 
 #controls button {
-  min-width: 72px;
-  height: 50px;
+
+  min-width: 75px;
+
+  height: 55px;
+
   border: none;
-  border-radius: 12px;
+
+  border-radius: 14px;
+
   background: #333;
+
   color: white;
-  font-size: 15px;
+
+  font-size: 16px;
+
   font-weight: bold;
+
   touch-action: manipulation;
+
+  -webkit-user-select: none;
+
+  user-select: none;
 }
 
 #controls button:active {
+
   transform: scale(0.92);
+
+  background: #555;
+}
+
+#shoot {
+
+  background: #8b0000 !important;
+
+  min-width: 100px !important;
 }
