@@ -15,6 +15,8 @@ let score = 0;
 let coins = 0;
 let lives = 3;
 
+let enemiesKilled = 0;
+let bossStarted = false;
 let level = 1;
 
 let gameOver = false;
@@ -171,8 +173,9 @@ function collision(a, b) {
 // ==========================
 // START BOSS
 // ==========================
-
 function startBoss() {
+
+  console.log("BOSS STARTED!");
 
   bossActive = true;
 
@@ -199,7 +202,6 @@ function startBoss() {
     speed: 2 + level * 0.3
 
   };
-
 }
 
 // ==========================
@@ -371,7 +373,16 @@ function update() {
         collision(bullet, enemy)
       ) {
 
-        score += 20;
+     score += 20;
+
+enemiesKilled++;
+
+if (enemiesKilled >= 10 && !bossStarted) {
+
+  bossStarted = true;
+
+  startBoss();
+} 
 
         enemy.y = 700;
 
@@ -418,20 +429,19 @@ function update() {
   // START BOSS
   // ==========================
 
-  const bossScore =
-    level === 1
-      ? 200
-      : 500 + (level - 2) * 300;
+// ==========================
+// START BOSS
+// ==========================
 
-  if (
-    score >= bossScore &&
-    !bossActive &&
-    !levelComplete
-  ) {
+if (
+  score >= 200 &&
+  !bossActive &&
+  !levelComplete
+) {
 
-    startBoss();
+  startBoss();
 
-  }
+}
 
   // ==========================
   // BOSS MOVEMENT
