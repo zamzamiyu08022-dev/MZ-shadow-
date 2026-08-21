@@ -1,10 +1,15 @@
 const canvas = document.createElement("canvas");
+
 canvas.width = 360;
 canvas.height = 560;
 
 document.body.appendChild(canvas);
 
 const ctx = canvas.getContext("2d");
+
+// ====================
+// PLAYER
+// ====================
 
 const player = {
   x: 165,
@@ -16,6 +21,10 @@ const player = {
   jumping: false
 };
 
+// ====================
+// GAME VARIABLES
+// ====================
+
 let enemies = [];
 let coins = [];
 let bullets = [];
@@ -26,8 +35,10 @@ let coinCount = 0;
 let lives = 3;
 
 let level = 1;
+
 let boss = null;
 let bossActive = false;
+
 let gameOver = false;
 let levelComplete = false;
 
@@ -36,16 +47,16 @@ let right = false;
 
 const gravity = 0.6;
 
-// --------------------
-// ENEMY
-// --------------------
+// ====================
+// CREATE ENEMY
+// ====================
 
 function createEnemy() {
 
-  if (bossActive) return;
+  if (bossActive || gameOver || levelComplete) return;
 
   enemies.push({
-    x: Math.random() * 330,
+    x: Math.random() * (canvas.width - 30),
     y: -40,
     width: 30,
     height: 40,
@@ -53,45 +64,37 @@ function createEnemy() {
   });
 }
 
-setInterval(() => {
+setInterval(createEnemy, 1200);
 
-  if (!gameOver && !levelComplete && !bossActive) {
-    createEnemy();
-  }
-
-}, 1200);
-
-// --------------------
-// COINS
-// --------------------
+// ====================
+// CREATE COIN
+// ====================
 
 function createCoin() {
 
-  if (bossActive) return;
+  if (bossActive || gameOver || levelComplete) return;
 
   coins.push({
-    x: Math.random() * 330,
+    x: Math.random() * (canvas.width - 18),
     y: Math.random() * 350 + 80,
     width: 18,
     height: 18
   });
 }
 
-setInterval(() => {
+setInterval(createCoin, 1500);
 
-  if (!gameOver && !levelComplete && !bossActive) {
-    createCoin();
-  }
-
-}, 1500);
-
-// --------------------
+// ====================
 // JUMP
-// --------------------
+// ====================
 
 function jump() {
 
-  if (!player.jumping && !gameOver && !levelComplete) {
+  if (
+    !player.jumping &&
+    !gameOver &&
+    !levelComplete
+  ) {
 
     player.velocityY = -12;
     player.jumping = true;
@@ -99,9 +102,9 @@ function jump() {
   }
 }
 
-// --------------------
+// ====================
 // SHOOT
-// --------------------
+// ====================
 
 function shoot() {
 
@@ -118,25 +121,23 @@ function shoot() {
   });
 }
 
-// --------------------
+// ====================
 // COLLISION
-// --------------------
+// ====================
 
 function collision(a, b) {
 
   return (
-
     a.x < b.x + b.width &&
     a.x + a.width > b.x &&
     a.y < b.y + b.height &&
     a.y + a.height > b.y
-
   );
 }
 
-// --------------------
+// ====================
 // START BOSS
-// --------------------
+// ====================
 
 function startBoss() {
 
@@ -162,101 +163,320 @@ function startBoss() {
   };
 }
 
-// --------------------
-// UPDATE
-// --------------------
+// ====================
+// UPDATE GAME
+// ====================
 
+function update() {
+
+  if (gameOver || levelComplete) return;
+
+  // PLAYER MOVEMENT
+
+  if (left) {
+    player.x -= player.speed;
+  }
+
+  if (right) {
+    player.x += player.speed;
+  }
+
+  // SCREEN LIMITS
+
+  if (player.x < 0) {
+    player.x = 0;
+  }
+
+  if (player.x + player.width > canvas.width) {
+    player.x = canvas.width - player.width;
+  }
+
+  // GRAVITY
+
+  player.y += player.velocityY;
+
+  player.velocityY += gravity;
+
+  // GROUND
+
+  if (player.y + player.height >= 500) {
+
+    player.y = 500 - player.height;
+
+    player.velocityY = 0;
+
+    player.jumping = false;
+  }
+
+  // ====================
+  // ENEMIES
+  // ====================
+
+  enemies.forEach(enemy => {
+
+    enemy.y += enemy.speed;
+
+    if (collision(player, enemy)) {
+
+      lives--;
+
+      enemy.y = 700;
+
+      if (lives <= 0) {
+
+        gameOver = true;
+
+      }
+    }
+  });
+
+  enemies = enemies.filter(
+    enemy => enemy.y < 600
+  );
+
+  // ====================
+  // COINS
+  // ====================
+
+  coins.forEach(coin => {
+
+    if (collision(player, coin)) {
+
+      coinCount++;
+
+      score += 10;
+
+      coin.y = 700;
+    }
+  });
+
+  coins = coins.filter(
+    coin => coin.y < 600
+  );
+
+  // ====================
+  // BULLETS
+  // ====================
+
+  bullets.forEach(bullet => {
+
+    bullet.y -= bullet.speed;
+
+    // Hit enemies
+
+    enemies.forEach(enemy => {
+
+      if (collision(bullet, enemy)) {
+
+        score += 20;
+
+        enemy.y = 700;
+
+        bullet.y = -100;
+
+      }
+    });
+
+    // Hit boss
+
+    if (
+      bossActive &&
+      boss &&
+      collision(bullet, boss)
+    ) {
+
+      boss.health--;
+
+      bullet.y = -100;
+
+      if (boss.health <= 0) {
+
+        score += 500;
+
+        boss = null;
+
+        bossActive = false;
+
+        levelComplete = true;
+      }
+    }
+  });
+
+  bullets = bullets.filter(
+    bullet => bullet.y > -50
+  );
+
+  // ====================
+  // START BOSS
+  // ====================
+
+  if (
+    score >= 200 &&
+    !bossActive &&
+    !levelComplete
+  ) {
+
+    startBoss();
+
+  }
+
+  // ====================
+  // BOSS
+  // ====================
+
+  if (bossActive && boss) {
+
+    boss.x +=
+      boss.speed * boss.direction;
+
+    if (boss.x <= 0) {
+
+      boss.direction = 1;
+
+    }
+
+    if (
+      boss.x + boss.width >=
+      canvas.width
+    ) {
+
+      boss.direction = -1;
+
+    }
+
+    // Boss shooting
+
+    if (Math.random() < 0.02) {
+
+      bossBullets.push({
+
+        x:
+          boss.x +
+          boss.width / 2 -
+          4,
+
+        y:
+          boss.y +
+          boss.height,
+
+        width: 8,
+
+        height: 15,
+
+        speed: 5
+
+      });
+
+    }
+  }
+
+  // ====================
+  // BOSS BULLETS
+  // ====================
+
+  bossBullets.forEach(bullet => {
+
+    bullet.y += bullet.speed;
+
+    if (collision(player, bullet)) {
+
+      lives--;
+
+      bullet.y = 700;
+
+      if (lives <= 0) {
+
+        gameOver = true;
+
+      }
+    }
+  });
+
+  bossBullets =
+    bossBullets.filter(
+      bullet => bullet.y < 600
+    );
+}
+
+// ====================
+// DRAW GAME
+// ====================
 
 function draw() {
 
-  ctx.clearRect(
-
-    0,
-    0,
-    canvas.width,
-    canvas.height
-
-  );
-
-  // Background
+  // BACKGROUND
 
   ctx.fillStyle = "#111";
 
   ctx.fillRect(
-
     0,
     0,
     canvas.width,
     canvas.height
-
   );
 
-  // Ground
+  // GROUND
 
   ctx.fillStyle = "#333";
 
   ctx.fillRect(
-
     0,
     500,
     canvas.width,
     60
-
   );
 
-  // Player
+  // ====================
+  // PLAYER
+  // ====================
 
   ctx.fillStyle = "white";
 
   ctx.fillRect(
-
     player.x,
     player.y,
     player.width,
     player.height
-
   );
 
-  // Eyes
+  // PLAYER EYES
 
   ctx.fillStyle = "#111";
 
   ctx.fillRect(
-
     player.x + 7,
     player.y + 10,
     5,
     5
-
   );
 
   ctx.fillRect(
-
     player.x + 19,
     player.y + 10,
     5,
     5
-
   );
 
-  // Enemies
+  // ====================
+  // ENEMIES
+  // ====================
 
   ctx.fillStyle = "#888";
 
   enemies.forEach(enemy => {
 
     ctx.fillRect(
-
       enemy.x,
       enemy.y,
       enemy.width,
       enemy.height
-
     );
 
   });
 
-  // Coins
+  // ====================
+  // COINS
+  // ====================
 
   ctx.fillStyle = "gold";
 
@@ -265,95 +485,86 @@ function draw() {
     ctx.beginPath();
 
     ctx.arc(
-
       coin.x + 9,
       coin.y + 9,
       9,
       0,
       Math.PI * 2
-
     );
 
     ctx.fill();
 
   });
 
-  // Player bullets
+  // ====================
+  // PLAYER BULLETS
+  // ====================
 
   ctx.fillStyle = "red";
 
   bullets.forEach(bullet => {
 
     ctx.fillRect(
-
       bullet.x,
       bullet.y,
       bullet.width,
       bullet.height
-
     );
 
   });
 
-  // Boss
+  // ====================
+  // BOSS
+  // ====================
 
   if (bossActive && boss) {
 
     ctx.fillStyle = "purple";
 
     ctx.fillRect(
-
       boss.x,
       boss.y,
       boss.width,
       boss.height
-
     );
 
-    // Boss eyes
+    // BOSS EYES
 
     ctx.fillStyle = "red";
 
     ctx.fillRect(
-
       boss.x + 25,
       boss.y + 25,
       15,
       15
-
     );
 
     ctx.fillRect(
-
       boss.x + 80,
       boss.y + 25,
       15,
       15
-
     );
 
-    // Boss health bar
+    // HEALTH BAR
 
     ctx.fillStyle = "red";
 
     ctx.fillRect(
-
       60,
       20,
       240,
       15
-
     );
 
     ctx.fillStyle = "lime";
 
     ctx.fillRect(
-
       60,
       20,
-      240 * (boss.health / boss.maxHealth),
+      240 *
+      (boss.health / boss.maxHealth),
       15
-
     );
 
     ctx.fillStyle = "white";
@@ -361,138 +572,136 @@ function draw() {
     ctx.font = "14px Arial";
 
     ctx.fillText(
-
       "BOSS",
-
       165,
       32
-
     );
-
   }
 
-  // Boss bullets
+  // ====================
+  // BOSS BULLETS
+  // ====================
 
   ctx.fillStyle = "orange";
 
   bossBullets.forEach(bullet => {
 
     ctx.fillRect(
-
       bullet.x,
       bullet.y,
       bullet.width,
       bullet.height
-
     );
 
   });
 
-  // Title
+  // ====================
+  // TITLE
+  // ====================
 
   ctx.fillStyle = "white";
 
   ctx.font = "22px Arial";
 
   ctx.fillText(
-
     "MZ SHADOW",
     105,
     55
-
   );
 
-  // Score
+  // ====================
+  // SCORE
+  // ====================
 
   ctx.font = "16px Arial";
 
   ctx.fillText(
-
     "Score: " + score,
     10,
     80
-
   );
 
-  // Coins
+  // ====================
+  // COINS
+  // ====================
 
   ctx.fillText(
-
-    "🪙 " + coinCount,
-    135,
+    "Coins: " + coinCount,
+    125,
     80
-
   );
 
-  // Lives
+  // ====================
+  // LIVES
+  // ====================
 
   ctx.fillText(
-
-    "❤️ " + lives,
-    290,
+    "Lives: " + lives,
+    270,
     80
-
   );
 
-  // Level Complete
+  // ====================
+  // LEVEL COMPLETE
+  // ====================
 
   if (levelComplete) {
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "lime";
 
-    ctx.font = "30px Arial";
-
-    ctx.fillText(
-
-      bossActive
-        ? "BOSS DEFEATED!"
-        : "LEVEL 1 COMPLETE!",
-
-      60,
-      280
-
-    );
-
-  }
-
-  // Game Over
-
-  if (gameOver) {
-
-    ctx.fillStyle = "white";
-
-    ctx.font = "32px Arial";
+    ctx.font = "28px Arial";
 
     ctx.fillText(
-
-      "GAME OVER",
-      85,
-      260
-
+      "BOSS DEFEATED!",
+      55,
+      270
     );
 
     ctx.font = "18px Arial";
 
+    ctx.fillStyle = "white";
+
     ctx.fillText(
-
-      "Refresh page to restart",
-      90,
-      300
-
+      "Score: " + score,
+      130,
+      310
     );
-
   }
 
+  // ====================
+  // GAME OVER
+  // ====================
+
+  if (gameOver) {
+
+    ctx.fillStyle = "red";
+
+    ctx.font = "32px Arial";
+
+    ctx.fillText(
+      "GAME OVER",
+      85,
+      260
+    );
+
+    ctx.fillStyle = "white";
+
+    ctx.font = "18px Arial";
+
+    ctx.fillText(
+      "Refresh to restart",
+      105,
+      300
+    );
+  }
 }
 
-// --------------------
+// ====================
 // KEYBOARD
-// --------------------
+// ====================
 
 document.addEventListener(
-
   "keydown",
-
   event => {
 
     if (event.key === "ArrowLeft") {
@@ -509,24 +718,24 @@ document.addEventListener(
 
     if (event.key === " ") {
 
+      event.preventDefault();
+
       jump();
 
     }
 
-    if (event.key.toLowerCase() === "f") {
+    if (
+      event.key.toLowerCase() === "f"
+    ) {
 
       shoot();
 
     }
-
   }
-
 );
 
 document.addEventListener(
-
   "keyup",
-
   event => {
 
     if (event.key === "ArrowLeft") {
@@ -540,14 +749,12 @@ document.addEventListener(
       right = false;
 
     }
-
   }
-
 );
 
-// --------------------
+// ====================
 // TOUCH BUTTONS
-// --------------------
+// ====================
 
 const leftButton =
   document.getElementById("left");
@@ -561,454 +768,99 @@ const jumpButton =
 const shootButton =
   document.getElementById("shoot");
 
-leftButton.addEventListener(
+if (leftButton) {
 
-  "touchstart",
+  leftButton.addEventListener(
+    "touchstart",
+    event => {
 
-  e => {
+      event.preventDefault();
 
-    e.preventDefault();
-
-    left = true;
-
-  }
-
-);
-
-leftButton.addEventListener(
-
-  "touchend",
-
-  e => {
-
-    e.preventDefault();
-
-    left = false;
-
-  }
-
-);
-
-rightButton.addEventListener(
-
-  "touchstart",
-
-  e => {
-
-    e.preventDefault();
-
-    right = true;
-
-  }
-
-);
-
-rightButton.addEventListener(
-
-  "touchend",
-
-  e => {
-
-    e.preventDefault();
-
-    right = false;
-
-  }
-
-);
-
-jumpButton.addEventListener(
-
-  "touchstart",
-
-  e => {
-
-    e.preventDefault();
-
-    jump();
-
-  }
-
-);
-
-shootButton.addEventListener(
-
-  "click",
-
-  e => {
-
-    e.preventDefault();
-
-    shoot();
-
-  }
-
-);
-
-shootButton.addEventListener(
-
-  "touchend",
-
-  e => {
-
-    e.preventDefault();
-
-    shoot();
-
-  }
-
-function update() {
-
-  if (gameOver || levelComplete) return;
-
-  // PLAYER MOVEMENT
-  if (left) {
-    player.x -= player.speed;
-  }
-
-  if (right) {
-    player.x += player.speed;
-  }
-
-  // Keep player inside screen
-  if (player.x < 0) {
-    player.x = 0;
-  }
-
-  if (player.x + player.width > canvas.width) {
-    player.x = canvas.width - player.width;
-  }
-
-  // GRAVITY
-  player.y += player.velocityY;
-  player.velocityY += gravity;
-
-  // Ground
-  if (player.y + player.height >= 500) {
-
-    player.y = 500 - player.height;
-    player.velocityY = 0;
-    player.jumping = false;
-
-  }
-
-  // ENEMIES
-  enemies.forEach(enemy => {
-
-    enemy.y += enemy.speed;
-
-    if (collision(player, enemy)) {
-
-      lives--;
-      enemy.y = 600;
-
-      if (lives <= 0) {
-        gameOver = true;
-      }
+      left = true;
 
     }
+  );
 
-  });
+  leftButton.addEventListener(
+    "touchend",
+    event => {
 
-  enemies = enemies.filter(enemy => enemy.y < 600);
+      event.preventDefault();
 
-  // COINS
-  coins.forEach(coin => {
-
-    if (collision(player, coin)) {
-
-      coinCount++;
-      score += 10;
-      coin.y = 700;
+      left = false;
 
     }
-
-  });
-
-  coins = coins.filter(coin => coin.y < 600);
-
-  // PLAYER BULLETS
-  bullets.forEach(bullet => {
-
-    bullet.y -= bullet.speed;
-
-    // Hit enemies
-    enemies.forEach(enemy => {
-
-      if (collision(bullet, enemy)) {
-
-        score += 20;
-
-        enemy.y = 700;
-        bullet.y = -100;
-
-      }
-
-    });
-
-    // Hit boss
-    if (bossActive && boss && collision(bullet, boss)) {
-
-      boss.health--;
-
-      bullet.y = -100;
-
-      if (boss.health <= 0) {
-
-        boss = null;
-        bossActive = false;
-        levelComplete = true;
-        score += 500;
-
-      }
-
-    }
-
-  });
-
-  bullets = bullets.filter(bullet => bullet.y > -50);
-
-  // START BOSS
-  if (score >= 200 && !bossActive && !levelComplete) {
-
-    startBoss();
-
-  }
-
-  // BOSS MOVEMENT
-  if (bossActive && boss) {
-
-    boss.x += boss.speed * boss.direction;
-
-    if (boss.x <= 0) {
-      boss.direction = 1;
-    }
-
-    if (boss.x + boss.width >= canvas.width) {
-      boss.direction = -1;
-    }
-
-    // Boss shooting
-    if (Math.random() < 0.02) {
-
-      bossBullets.push({
-
-        x: boss.x + boss.width / 2 - 4,
-        y: boss.y + boss.height,
-        width: 8,
-        height: 15,
-        speed: 5
-
-      });
-
-    }
-
-  }
-
-  // BOSS BULLETS
-  bossBullets.forEach(bullet => {
-
-    bullet.y += bullet.speed;
-
-    if (collision(player, bullet)) {
-
-      lives--;
-      bullet.y = 700;
-
-      if (lives <= 0) {
-        gameOver = true;
-      }
-
-    }
-
-  });
-
-  bossBullets =
-    bossBullets.filter(bullet => bullet.y < 600);
-
+  );
 }
 
+if (rightButton) {
 
-// GAME LOOP
-function gameLoop() {
+  rightButton.addEventListener(
+    "touchstart",
+    event => {
 
-  update();
+      event.preventDefault();
 
-  draw();
-
-  requestAnimationFrame(gameLoop)function update() {
-
-  if (gameOver || levelComplete) return;
-
-  // PLAYER MOVEMENT
-  if (left) {
-    player.x -= player.speed;
-  }
-
-  if (right) {
-    player.x += player.speed;
-  }
-
-  // Keep player inside screen
-  if (player.x < 0) {
-    player.x = 0;
-  }
-
-  if (player.x + player.width > canvas.width) {
-    player.x = canvas.width - player.width;
-  }
-
-  // GRAVITY
-  player.y += player.velocityY;
-  player.velocityY += gravity;
-
-  // Ground
-  if (player.y + player.height >= 500) {
-
-    player.y = 500 - player.height;
-    player.velocityY = 0;
-    player.jumping = false;
-
-  }
-
-  // ENEMIES
-  enemies.forEach(enemy => {
-
-    enemy.y += enemy.speed;
-
-    if (collision(player, enemy)) {
-
-      lives--;
-      enemy.y = 600;
-
-      if (lives <= 0) {
-        gameOver = true;
-      }
+      right = true;
 
     }
+  );
 
-  });
+  rightButton.addEventListener(
+    "touchend",
+    event => {
 
-  enemies = enemies.filter(enemy => enemy.y < 600);
+      event.preventDefault();
 
-  // COINS
-  coins.forEach(coin => {
-
-    if (collision(player, coin)) {
-
-      coinCount++;
-      score += 10;
-      coin.y = 700;
+      right = false;
 
     }
-
-  });
-
-  coins = coins.filter(coin => coin.y < 600);
-
-  // PLAYER BULLETS
-  bullets.forEach(bullet => {
-
-    bullet.y -= bullet.speed;
-
-    // Hit enemies
-    enemies.forEach(enemy => {
-
-      if (collision(bullet, enemy)) {
-
-        score += 20;
-
-        enemy.y = 700;
-        bullet.y = -100;
-
-      }
-
-    });
-
-    // Hit boss
-    if (bossActive && boss && collision(bullet, boss)) {
-
-      boss.health--;
-
-      bullet.y = -100;
-
-      if (boss.health <= 0) {
-
-        boss = null;
-        bossActive = false;
-        levelComplete = true;
-        score += 500;
-
-      }
-
-    }
-
-  });
-
-  bullets = bullets.filter(bullet => bullet.y > -50);
-
-  // START BOSS
-  if (score >= 200 && !bossActive && !levelComplete) {
-
-    startBoss();
-
-  }
-
-  // BOSS MOVEMENT
-  if (bossActive && boss) {
-
-    boss.x += boss.speed * boss.direction;
-
-    if (boss.x <= 0) {
-      boss.direction = 1;
-    }
-
-    if (boss.x + boss.width >= canvas.width) {
-      boss.direction = -1;
-    }
-
-    // Boss shooting
-    if (Math.random() < 0.02) {
-
-      bossBullets.push({
-
-        x: boss.x + boss.width / 2 - 4,
-        y: boss.y + boss.height,
-        width: 8,
-        height: 15,
-        speed: 5
-
-      });
-
-    }
-
-  }
-
-  // BOSS BULLETS
-  bossBullets.forEach(bullet => {
-
-    bullet.y += bullet.speed;
-
-    if (collision(player, bullet)) {
-
-      lives--;
-      bullet.y = 700;
-
-      if (lives <= 0) {
-        gameOver = true;
-      }
-
-    }
-
-  });
-
-  bossBullets =
-    bossBullets.filter(bullet => bullet.y < 600);
-
+  );
 }
 
+if (jumpButton) {
 
+  jumpButton.addEventListener(
+    "touchstart",
+    event => {
+
+      event.preventDefault();
+
+      jump();
+
+    }
+  );
+}
+
+if (shootButton) {
+
+  shootButton.addEventListener(
+    "touchstart",
+    event => {
+
+      event.preventDefault();
+
+      shoot();
+
+    }
+  );
+
+  shootButton.addEventListener(
+    "click",
+    event => {
+
+      event.preventDefault();
+
+      shoot();
+
+    }
+  );
+}
+
+// ====================
 // GAME LOOP
+// ====================
+
 function gameLoop() {
 
   update();
@@ -1016,7 +868,6 @@ function gameLoop() {
   draw();
 
   requestAnimationFrame(gameLoop);
-
 }
 
 gameLoop();
