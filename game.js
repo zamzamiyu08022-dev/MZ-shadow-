@@ -1,202 +1,23 @@
 const canvas = document.createElement("canvas");
-
 canvas.width = 360;
 canvas.height = 560;
-
 document.body.appendChild(canvas);
 
 const ctx = canvas.getContext("2d");
 
 // ==========================
-// MENU SYSTEM
+// GAME STATE
 // ==========================
 
 let gameStarted = false;
 let paused = false;
-
-let soundOn = true;
-let musicOn = true;
-
-const menu =
-  document.getElementById("menu");
-
-const settings =
-  document.getElementById("settings");
-
-const pauseMenu =
-  document.getElementById("pauseMenu");
-
-const controls =
-  document.getElementById("controls");
-
-const gameUI =
-  document.getElementById("gameUI");
-
-const playBtn =
-  document.getElementById("playBtn");
-
-const settingsBtn =
-  document.getElementById("settingsBtn");
-
-const soundBtn =
-  document.getElementById("soundBtn");
-
-const musicBtn =
-  document.getElementById("musicBtn");
-
-const backBtn =
-  document.getElementById("backBtn");
-
-const pauseBtn =
-  document.getElementById("pauseBtn");
-
-const resumeBtn =
-  document.getElementById("resumeBtn");
-
-const restartBtn =
-  document.getElementById("restartBtn");
-
-const menuBtn =
-  document.getElementById("menuBtn");
-
-
-// PLAY
-
-playBtn.onclick = () => {
-
-  gameStarted = true;
-
-  menu.style.display = "none";
-
-  settings.style.display = "none";
-
-  pauseMenu.style.display = "none";
-
-  controls.style.display = "flex";
-
-  gameUI.style.display = "block";
-
-};
-
-
-// SETTINGS
-
-settingsBtn.onclick = () => {
-
-  menu.style.display = "none";
-
-  settings.style.display = "flex";
-
-};
-
-
-// BACK
-
-backBtn.onclick = () => {
-
-  settings.style.display = "none";
-
-  menu.style.display = "flex";
-
-};
-
-
-// SOUND
-
-soundBtn.onclick = () => {
-
-  soundOn = !soundOn;
-
-  soundBtn.textContent =
-    soundOn
-      ? "🔊 SOUND: ON"
-      : "🔇 SOUND: OFF";
-
-};
-
-
-// MUSIC
-
-musicBtn.onclick = () => {
-
-  musicOn = !musicOn;
-
-  musicBtn.textContent =
-    musicOn
-      ? "🎵 MUSIC: ON"
-      : "🎵 MUSIC: OFF";
-
-};
-
-
-// PAUSE
-
-pauseBtn.onclick = () => {
-
-  if (!gameStarted) return;
-
-  paused = true;
-
-  pauseMenu.style.display =
-    "flex";
-
-};
-
-
-// RESUME
-
-resumeBtn.onclick = () => {
-
-  paused = false;
-
-  pauseMenu.style.display =
-    "none";
-
-};
-
-
-// RESTART
-
-restartBtn.onclick = () => {
-
-  location.reload();
-
-};
-
-
-// MAIN MENU
-
-menuBtn.onclick = () => {
-
-  paused = false;
-
-  gameStarted = false;
-
-  pauseMenu.style.display =
-    "none";
-
-  controls.style.display =
-    "none";
-
-  gameUI.style.display =
-    "none";
-
-  menu.style.display =
-    "flex";
-
-};
-// ==========================
-// GAME VARIABLES
-// ==========================
+let gameOver = false;
+let levelComplete = false;
 
 let score = 0;
 let coins = 0;
 let lives = 3;
 let level = 1;
-
-let gameOver = false;
-let bossActive = false;
-let levelComplete = false;
 
 let left = false;
 let right = false;
@@ -208,6 +29,7 @@ let bossBullets = [];
 let explosions = [];
 
 let boss = null;
+let bossActive = false;
 
 let animationTime = 0;
 let gunFlash = 0;
@@ -231,15 +53,114 @@ const player = {
 };
 
 // ==========================
+// MENU ELEMENTS
+// ==========================
+
+const menu = document.getElementById("menu");
+const settings = document.getElementById("settings");
+const pauseMenu = document.getElementById("pauseMenu");
+const controls = document.getElementById("controls");
+const gameUI = document.getElementById("gameUI");
+
+const playBtn = document.getElementById("playBtn");
+const settingsBtn = document.getElementById("settingsBtn");
+const soundBtn = document.getElementById("soundBtn");
+const musicBtn = document.getElementById("musicBtn");
+const backBtn = document.getElementById("backBtn");
+
+const pauseBtn = document.getElementById("pauseBtn");
+const resumeBtn = document.getElementById("resumeBtn");
+const restartBtn = document.getElementById("restartBtn");
+const menuBtn = document.getElementById("menuBtn");
+
+let soundOn = true;
+let musicOn = true;
+
+// ==========================
+// MENU
+// ==========================
+
+playBtn.onclick = function () {
+
+  gameStarted = true;
+  paused = false;
+
+  menu.style.display = "none";
+  settings.style.display = "none";
+  pauseMenu.style.display = "none";
+
+  controls.style.display = "flex";
+  gameUI.style.display = "block";
+};
+
+settingsBtn.onclick = function () {
+
+  menu.style.display = "none";
+  settings.style.display = "flex";
+};
+
+backBtn.onclick = function () {
+
+  settings.style.display = "none";
+  menu.style.display = "flex";
+};
+
+soundBtn.onclick = function () {
+
+  soundOn = !soundOn;
+
+  soundBtn.textContent =
+    soundOn
+      ? "🔊 SOUND: ON"
+      : "🔇 SOUND: OFF";
+};
+
+musicBtn.onclick = function () {
+
+  musicOn = !musicOn;
+
+  musicBtn.textContent =
+    musicOn
+      ? "🎵 MUSIC: ON"
+      : "🎵 MUSIC: OFF";
+};
+
+pauseBtn.onclick = function () {
+
+  if (!gameStarted || gameOver) return;
+
+  paused = true;
+  pauseMenu.style.display = "flex";
+};
+
+resumeBtn.onclick = function () {
+
+  paused = false;
+  pauseMenu.style.display = "none";
+};
+
+restartBtn.onclick = function () {
+
+  location.reload();
+};
+
+menuBtn.onclick = function () {
+
+  location.reload();
+};
+
+// ==========================
 // ENEMY
 // ==========================
 
 function createEnemy() {
 
   if (
+    !gameStarted ||
+    paused ||
     gameOver ||
-    bossActive ||
-    levelComplete
+    levelComplete ||
+    bossActive
   ) {
     return;
   }
@@ -257,23 +178,24 @@ function createEnemy() {
     speed:
       2 +
       Math.random() * 1.5 +
-      level * 0.3
-
+      level * 0.2
   });
 }
 
 setInterval(createEnemy, 1200);
 
 // ==========================
-// COIN
+// COINS
 // ==========================
 
 function createCoin() {
 
   if (
+    !gameStarted ||
+    paused ||
     gameOver ||
-    bossActive ||
-    levelComplete
+    levelComplete ||
+    bossActive
   ) {
     return;
   }
@@ -283,13 +205,12 @@ function createCoin() {
     x: Math.random() * 330,
 
     y:
-      100 +
+      110 +
       Math.random() * 300,
 
     width: 18,
 
     height: 18
-
   });
 }
 
@@ -302,13 +223,17 @@ setInterval(createCoin, 1500);
 function jump() {
 
   if (
-    !player.jumping &&
-    !gameOver &&
-    !levelComplete
+    !gameStarted ||
+    paused ||
+    gameOver ||
+    levelComplete
   ) {
+    return;
+  }
+
+  if (!player.jumping) {
 
     player.velocityY = -12;
-
     player.jumping = true;
 
   }
@@ -321,6 +246,8 @@ function jump() {
 function shoot() {
 
   if (
+    !gameStarted ||
+    paused ||
     gameOver ||
     levelComplete
   ) {
@@ -341,7 +268,6 @@ function shoot() {
     height: 15,
 
     speed: 8
-
   });
 
   gunFlash = 5;
@@ -366,12 +292,11 @@ function collision(a, b) {
 
     a.y + a.height >
       b.y
-
   );
 }
 
 // ==========================
-// START BOSS
+// BOSS
 // ==========================
 
 function startBoss() {
@@ -379,39 +304,29 @@ function startBoss() {
   bossActive = true;
 
   enemies = [];
-
   coinItems = [];
-
   bossBullets = [];
 
   bossAttackTimer = 0;
 
-  bossPulse = 0;
-
   boss = {
 
     x: 120,
-
     y: 70,
 
     width: 120,
-
     height: 90,
 
     health:
-      20 +
-      level * 10,
+      20 + level * 10,
 
     maxHealth:
-      20 +
-      level * 10,
+      20 + level * 10,
 
     direction: 1,
 
     speed:
-      2 +
-      level * 0.3
-
+      2 + level * 0.3
   };
 }
 
@@ -424,78 +339,57 @@ function nextLevel() {
   level++;
 
   levelComplete = false;
-
   bossActive = false;
-
   boss = null;
 
   enemies = [];
-
   coinItems = [];
-
   bullets = [];
-
   bossBullets = [];
-
   explosions = [];
 
   lives = 3;
 
   player.x = 160;
-
   player.y = 440;
 
   player.velocityY = 0;
-
   player.jumping = false;
-
 }
 
 // ==========================
 // UPDATE
 // ==========================
 
-function update() {if (!gameStarted || paused) {
-  return;
-}
+function update() {
 
   if (
+    !gameStarted ||
+    paused ||
     gameOver ||
     levelComplete
   ) {
-
     return;
-
   }
 
   animationTime += 0.15;
 
   if (gunFlash > 0) {
-
     gunFlash--;
-
   }
 
-  // ==========================
-  // PLAYER MOVEMENT
-  // ==========================
+  // PLAYER
 
   if (left) {
-
     player.x -= player.speed;
-
   }
 
   if (right) {
-
     player.x += player.speed;
-
   }
 
   if (player.x < 0) {
-
     player.x = 0;
-
   }
 
   if (
@@ -507,18 +401,13 @@ function update() {if (!gameStarted || paused) {
     player.x =
       canvas.width -
       player.width;
-
   }
 
-  // ==========================
   // GRAVITY
-  // ==========================
 
-  player.y +=
-    player.velocityY;
+  player.y += player.velocityY;
 
-  player.velocityY +=
-    gravity;
+  player.velocityY += gravity;
 
   if (
     player.y +
@@ -531,84 +420,59 @@ function update() {if (!gameStarted || paused) {
     player.velocityY = 0;
 
     player.jumping = false;
-
   }
 
-  // ==========================
   // ENEMIES
-  // ==========================
 
   enemies.forEach(enemy => {
 
     enemy.y += enemy.speed;
 
-    if (
-      collision(player, enemy)
-    ) {
+    if (collision(player, enemy)) {
 
       lives--;
 
       enemy.y = 700;
 
       if (lives <= 0) {
-
         gameOver = true;
-
       }
-
     }
-
   });
 
   enemies =
     enemies.filter(
-      enemy =>
-        enemy.y < 600
+      enemy => enemy.y < 600
     );
 
-  // ==========================
   // COINS
-  // ==========================
 
   coinItems.forEach(coin => {
 
-    if (
-      collision(player, coin)
-    ) {
+    if (collision(player, coin)) {
 
       coins++;
-
       score += 10;
 
       coin.y = 700;
-
     }
-
   });
 
   coinItems =
     coinItems.filter(
-      coin =>
-        coin.y < 600
+      coin => coin.y < 600
     );
 
-  // ==========================
-  // PLAYER BULLETS
-  // ==========================
+  // BULLETS
 
   bullets.forEach(bullet => {
 
     bullet.y -= bullet.speed;
 
-    // ENEMY HIT
-
     enemies.forEach(enemy => {
 
       if (
-        collision(
-          bullet,
-          enemy
-        )
+        collision(bullet, enemy)
       ) {
 
         score += 20;
@@ -626,15 +490,11 @@ function update() {if (!gameStarted || paused) {
           radius: 5,
 
           life: 20
-
         });
 
         enemy.y = 700;
-
         bullet.y = -100;
-
       }
-
     });
 
     // BOSS HIT
@@ -642,10 +502,7 @@ function update() {if (!gameStarted || paused) {
     if (
       bossActive &&
       boss &&
-      collision(
-        bullet,
-        boss
-      )
+      collision(bullet, boss)
     ) {
 
       boss.health--;
@@ -667,12 +524,9 @@ function update() {if (!gameStarted || paused) {
         radius: 6,
 
         life: 15
-
       });
 
-      if (
-        boss.health <= 0
-      ) {
+      if (boss.health <= 0) {
 
         score += 500;
 
@@ -683,22 +537,16 @@ function update() {if (!gameStarted || paused) {
         bossBullets = [];
 
         levelComplete = true;
-
       }
-
     }
-
   });
 
   bullets =
     bullets.filter(
-      bullet =>
-        bullet.y > -50
+      bullet => bullet.y > -50
     );
 
-  // ==========================
-  // BOSS START
-  // ==========================
+  // START BOSS
 
   if (
     score >= 200 &&
@@ -707,12 +555,9 @@ function update() {if (!gameStarted || paused) {
   ) {
 
     startBoss();
-
   }
 
-  // ==========================
-  // BOSS
-  // ==========================
+  // BOSS UPDATE
 
   if (
     bossActive &&
@@ -723,18 +568,12 @@ function update() {if (!gameStarted || paused) {
 
     bossAttackTimer++;
 
-    // BOSS MOVEMENT
-
     boss.x +=
       boss.speed *
       boss.direction;
 
-    if (
-      boss.x <= 0
-    ) {
-
+    if (boss.x <= 0) {
       boss.direction = 1;
-
     }
 
     if (
@@ -744,10 +583,7 @@ function update() {if (!gameStarted || paused) {
     ) {
 
       boss.direction = -1;
-
     }
-
-    // BOSS FLOATING
 
     boss.y =
       70 +
@@ -755,9 +591,7 @@ function update() {if (!gameStarted || paused) {
         bossPulse
       ) * 12;
 
-    // ==========================
     // BOSS ATTACK
-    // ==========================
 
     if (
       bossAttackTimer >= 70
@@ -794,12 +628,8 @@ function update() {if (!gameStarted || paused) {
             i * 0.25,
 
           special: false
-
         });
-
       }
-
-      // SPECIAL ATTACK
 
       if (
         Math.random() < 0.4
@@ -825,100 +655,71 @@ function update() {if (!gameStarted || paused) {
           angle: 0,
 
           special: true
-
         });
-
       }
-
     }
-
   }
 
-  // ==========================
   // BOSS BULLETS
-  // ==========================
 
-  bossBullets.forEach(
-    bullet => {
+  bossBullets.forEach(bullet => {
 
-      bullet.y +=
-        bullet.speed;
+    bullet.y += bullet.speed;
 
-      if (
-        bullet.angle
-      ) {
+    if (bullet.angle) {
 
-        bullet.x +=
-          bullet.angle * 4;
-
-      }
-
-      if (
-        collision(
-          player,
-          bullet
-        )
-      ) {
-
-        lives--;
-
-        bullet.y = 700;
-
-        explosions.push({
-
-          x:
-            player.x +
-            player.width / 2,
-
-          y:
-            player.y +
-            player.height / 2,
-
-          radius: 8,
-
-          life: 15
-
-        });
-
-        if (
-          lives <= 0
-        ) {
-
-          gameOver = true;
-
-        }
-
-      }
-
+      bullet.x +=
+        bullet.angle * 4;
     }
-  );
+
+    if (
+      collision(player, bullet)
+    ) {
+
+      lives--;
+
+      bullet.y = 700;
+
+      explosions.push({
+
+        x:
+          player.x +
+          player.width / 2,
+
+        y:
+          player.y +
+          player.height / 2,
+
+        radius: 8,
+
+        life: 15
+      });
+
+      if (lives <= 0) {
+        gameOver = true;
+      }
+    }
+  });
 
   bossBullets =
     bossBullets.filter(
-      bullet =>
-        bullet.y < 600
+      bullet => bullet.y < 600
     );
 
-  // ==========================
   // EXPLOSIONS
-  // ==========================
 
-  explosions.forEach(
-    explosion => {
+  explosions.forEach(explosion => {
 
-      explosion.radius += 2;
+    explosion.radius += 2;
+    explosion.life--;
 
-      explosion.life--;
-
-    }
-  );
+  });
 
   explosions =
     explosions.filter(
       explosion =>
         explosion.life > 0
     );
-
 }
 
 // ==========================
@@ -927,12 +728,9 @@ function update() {if (!gameStarted || paused) {
 
 function draw() {
 
-  // ==========================
   // SKY
-  // ==========================
 
-  ctx.fillStyle =
-    "#050816";
+  ctx.fillStyle = "#050816";
 
   ctx.fillRect(
     0,
@@ -941,9 +739,7 @@ function draw() {
     560
   );
 
-  // ==========================
   // STARS
-  // ==========================
 
   ctx.fillStyle = "white";
 
@@ -965,12 +761,9 @@ function draw() {
       2,
       2
     );
-
   }
 
-  // ==========================
   // MOON
-  // ==========================
 
   ctx.fillStyle =
     "#fff4bd";
@@ -1002,121 +795,63 @@ function draw() {
 
   ctx.fill();
 
-  // ==========================
   // CITY
-  // ==========================
 
   const buildings = [
 
-    {
-      x: 0,
-      y: 350,
-      w: 55,
-      h: 150
-    },
-
-    {
-      x: 60,
-      y: 300,
-      w: 45,
-      h: 200
-    },
-
-    {
-      x: 110,
-      y: 365,
-      w: 50,
-      h: 135
-    },
-
-    {
-      x: 165,
-      y: 315,
-      w: 55,
-      h: 185
-    },
-
-    {
-      x: 225,
-      y: 360,
-      w: 45,
-      h: 140
-    },
-
-    {
-      x: 275,
-      y: 285,
-      w: 50,
-      h: 215
-    },
-
-    {
-      x: 330,
-      y: 335,
-      w: 30,
-      h: 165
-    }
+    [0, 350, 55, 150],
+    [60, 300, 45, 200],
+    [110, 365, 50, 135],
+    [165, 315, 55, 185],
+    [225, 360, 45, 140],
+    [275, 285, 50, 215],
+    [330, 335, 30, 165]
 
   ];
 
   ctx.fillStyle =
     "#101321";
 
-  buildings.forEach(
-    building => {
+  buildings.forEach(b => {
 
-      ctx.fillRect(
-        building.x,
-        building.y,
-        building.w,
-        building.h
-      );
-
-    }
-  );
+    ctx.fillRect(
+      b[0],
+      b[1],
+      b[2],
+      b[3]
+    );
+  });
 
   // WINDOWS
 
   ctx.fillStyle =
     "#ffd966";
 
-  buildings.forEach(
-    building => {
+  buildings.forEach(b => {
+
+    for (
+      let y = b[1] + 20;
+      y < 490;
+      y += 30
+    ) {
 
       for (
-        let y =
-          building.y + 20;
-        y < 490;
-        y += 30
+        let x = b[0] + 10;
+        x < b[0] + b[2] - 5;
+        x += 20
       ) {
 
-        for (
-          let x =
-            building.x + 10;
-          x <
-            building.x +
-            building.w -
-            5;
-          x += 20
-        ) {
-
-          ctx.fillRect(
-            x,
-            y,
-            6,
-            9
-          );
-
-        }
-
+        ctx.fillRect(
+          x,
+          y,
+          6,
+          9
+        );
       }
-
     }
-  );
+  });
 
-  // ==========================
   // GROUND
-  // ==========================
 
   ctx.fillStyle =
     "#151515";
@@ -1214,7 +949,7 @@ function draw() {
     20
   );
 
-  // LEFT ARM
+  // ARMS
 
   ctx.fillStyle =
     "#090909";
@@ -1225,8 +960,6 @@ function draw() {
     12,
     28
   );
-
-  // RIGHT ARM
 
   ctx.fillRect(
     px + 27,
@@ -1366,7 +1099,6 @@ function draw() {
     ctx.closePath();
 
     ctx.fill();
-
   }
 
   // ==========================
@@ -1401,7 +1133,6 @@ function draw() {
       5,
       5
     );
-
   });
 
   // ==========================
@@ -1424,7 +1155,6 @@ function draw() {
     );
 
     ctx.fill();
-
   });
 
   // ==========================
@@ -1434,18 +1164,15 @@ function draw() {
   ctx.fillStyle =
     "red";
 
-  bullets.forEach(
-    bullet => {
+  bullets.forEach(bullet => {
 
-      ctx.fillRect(
-        bullet.x,
-        bullet.y,
-        bullet.width,
-        bullet.height
-      );
-
-    }
-  );
+    ctx.fillRect(
+      bullet.x,
+      bullet.y,
+      bullet.width,
+      bullet.height
+    );
+  });
 
   // ==========================
   // BOSS
@@ -1513,15 +1240,12 @@ function draw() {
 
     // EYES
 
-    const eyeGlow =
+    ctx.fillStyle =
       Math.sin(
         bossPulse * 2
       ) > 0
-        ? "#ff0000"
-        : "#660000";
-
-    ctx.fillStyle =
-      eyeGlow;
+        ? "red"
+        : "#550000";
 
     ctx.fillRect(
       boss.x + 42,
@@ -1556,10 +1280,10 @@ function draw() {
       50,
       20,
       260 *
-        (
-          boss.health /
-          boss.maxHealth
-        ),
+      (
+        boss.health /
+        boss.maxHealth
+      ),
       18
     );
 
@@ -1574,7 +1298,6 @@ function draw() {
       165,
       33
     );
-
   }
 
   // ==========================
@@ -1584,9 +1307,7 @@ function draw() {
   bossBullets.forEach(
     bullet => {
 
-      if (
-        bullet.special
-      ) {
+      if (bullet.special) {
 
         ctx.fillStyle =
           "#00ffff";
@@ -1616,9 +1337,7 @@ function draw() {
           bullet.width,
           bullet.height
         );
-
       }
-
     }
   );
 
@@ -1649,7 +1368,7 @@ function draw() {
       ctx.arc(
         explosion.x,
         explosion.y,
-        explosion.radius * 0.7,
+        explosion.radius * .7,
         0,
         Math.PI * 2
       );
@@ -1664,7 +1383,7 @@ function draw() {
       ctx.arc(
         explosion.x,
         explosion.y,
-        explosion.radius * 0.35,
+        explosion.radius * .35,
         0,
         Math.PI * 2
       );
@@ -1673,12 +1392,11 @@ function draw() {
         "yellow";
 
       ctx.fill();
-
     }
   );
 
   // ==========================
-  // UI
+  // GAME TEXT
   // ==========================
 
   ctx.fillStyle =
@@ -1727,7 +1445,7 @@ function draw() {
   if (levelComplete) {
 
     ctx.fillStyle =
-      "rgba(0,0,0,0.8)";
+      "rgba(0,0,0,.85)";
 
     ctx.fillRect(
       0,
@@ -1745,7 +1463,7 @@ function draw() {
     ctx.fillText(
       "BOSS DEFEATED!",
       55,
-      245
+      240
     );
 
     ctx.fillStyle =
@@ -1759,7 +1477,7 @@ function draw() {
       level +
       " COMPLETE",
       90,
-      285
+      280
     );
 
     ctx.fillStyle =
@@ -1776,14 +1494,13 @@ function draw() {
       "black";
 
     ctx.font =
-      "20px Arial";
+      "19px Arial";
 
     ctx.fillText(
       "NEXT LEVEL",
       115,
       352
     );
-
   }
 
   // ==========================
@@ -1793,7 +1510,7 @@ function draw() {
   if (gameOver) {
 
     ctx.fillStyle =
-      "rgba(0,0,0,0.8)";
+      "rgba(0,0,0,.85)";
 
     ctx.fillRect(
       0,
@@ -1825,9 +1542,7 @@ function draw() {
       85,
       305
     );
-
   }
-
 }
 
 // ==========================
@@ -1844,7 +1559,6 @@ document.addEventListener(
     ) {
 
       left = true;
-
     }
 
     if (
@@ -1853,7 +1567,6 @@ document.addEventListener(
     ) {
 
       right = true;
-
     }
 
     if (
@@ -1869,9 +1582,7 @@ document.addEventListener(
       } else {
 
         jump();
-
       }
-
     }
 
     if (
@@ -1880,9 +1591,7 @@ document.addEventListener(
     ) {
 
       shoot();
-
     }
-
   }
 );
 
@@ -1896,7 +1605,6 @@ document.addEventListener(
     ) {
 
       left = false;
-
     }
 
     if (
@@ -1905,9 +1613,7 @@ document.addEventListener(
     ) {
 
       right = false;
-
     }
-
   }
 );
 
@@ -1916,24 +1622,16 @@ document.addEventListener(
 // ==========================
 
 const leftButton =
-  document.getElementById(
-    "left"
-  );
+  document.getElementById("left");
 
 const rightButton =
-  document.getElementById(
-    "right"
-  );
+  document.getElementById("right");
 
 const jumpButton =
-  document.getElementById(
-    "jump"
-  );
+  document.getElementById("jump");
 
 const shootButton =
-  document.getElementById(
-    "shoot"
-  );
+  document.getElementById("shoot");
 
 // LEFT
 
@@ -1946,7 +1644,6 @@ if (leftButton) {
       e.preventDefault();
 
       left = true;
-
     }
   );
 
@@ -1957,10 +1654,8 @@ if (leftButton) {
       e.preventDefault();
 
       left = false;
-
     }
   );
-
 }
 
 // RIGHT
@@ -1974,7 +1669,6 @@ if (rightButton) {
       e.preventDefault();
 
       right = true;
-
     }
   );
 
@@ -1985,10 +1679,8 @@ if (rightButton) {
       e.preventDefault();
 
       right = false;
-
     }
   );
-
 }
 
 // JUMP
@@ -2008,12 +1700,9 @@ if (jumpButton) {
       } else {
 
         jump();
-
       }
-
     }
   );
-
 }
 
 // FIRE
@@ -2027,7 +1716,6 @@ if (shootButton) {
       e.preventDefault();
 
       shoot();
-
     }
   );
 
@@ -2038,25 +1726,19 @@ if (shootButton) {
       e.preventDefault();
 
       shoot();
-
     }
   );
-
 }
 
 // ==========================
-// NEXT LEVEL CLICK
+// NEXT LEVEL TOUCH
 // ==========================
 
 canvas.addEventListener(
   "click",
   event => {
 
-    if (!levelComplete) {
-
-      return;
-
-    }
+    if (!levelComplete) return;
 
     const rect =
       canvas.getBoundingClientRect();
@@ -2073,15 +1755,13 @@ canvas.addEventListener(
       (
         event.clientX -
         rect.left
-      ) *
-      scaleX;
+      ) * scaleX;
 
     const y =
       (
         event.clientY -
         rect.top
-      ) *
-      scaleY;
+      ) * scaleY;
 
     if (
       x >= 100 &&
@@ -2091,15 +1771,14 @@ canvas.addEventListener(
     ) {
 
       nextLevel();
-
     }
-
   }
 );
 
 // ==========================
 // GAME LOOP
 // ==========================
+
 function gameLoop() {
 
   if (gameStarted) {
@@ -2113,7 +1792,6 @@ function gameLoop() {
   requestAnimationFrame(
     gameLoop
   );
-
 }
 
 gameLoop();
