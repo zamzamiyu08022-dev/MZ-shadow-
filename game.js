@@ -8,6 +8,184 @@ document.body.appendChild(canvas);
 const ctx = canvas.getContext("2d");
 
 // ==========================
+// MENU SYSTEM
+// ==========================
+
+let gameStarted = false;
+let paused = false;
+
+let soundOn = true;
+let musicOn = true;
+
+const menu =
+  document.getElementById("menu");
+
+const settings =
+  document.getElementById("settings");
+
+const pauseMenu =
+  document.getElementById("pauseMenu");
+
+const controls =
+  document.getElementById("controls");
+
+const gameUI =
+  document.getElementById("gameUI");
+
+const playBtn =
+  document.getElementById("playBtn");
+
+const settingsBtn =
+  document.getElementById("settingsBtn");
+
+const soundBtn =
+  document.getElementById("soundBtn");
+
+const musicBtn =
+  document.getElementById("musicBtn");
+
+const backBtn =
+  document.getElementById("backBtn");
+
+const pauseBtn =
+  document.getElementById("pauseBtn");
+
+const resumeBtn =
+  document.getElementById("resumeBtn");
+
+const restartBtn =
+  document.getElementById("restartBtn");
+
+const menuBtn =
+  document.getElementById("menuBtn");
+
+
+// PLAY
+
+playBtn.onclick = () => {
+
+  gameStarted = true;
+
+  menu.style.display = "none";
+
+  settings.style.display = "none";
+
+  pauseMenu.style.display = "none";
+
+  controls.style.display = "flex";
+
+  gameUI.style.display = "block";
+
+};
+
+
+// SETTINGS
+
+settingsBtn.onclick = () => {
+
+  menu.style.display = "none";
+
+  settings.style.display = "flex";
+
+};
+
+
+// BACK
+
+backBtn.onclick = () => {
+
+  settings.style.display = "none";
+
+  menu.style.display = "flex";
+
+};
+
+
+// SOUND
+
+soundBtn.onclick = () => {
+
+  soundOn = !soundOn;
+
+  soundBtn.textContent =
+    soundOn
+      ? "🔊 SOUND: ON"
+      : "🔇 SOUND: OFF";
+
+};
+
+
+// MUSIC
+
+musicBtn.onclick = () => {
+
+  musicOn = !musicOn;
+
+  musicBtn.textContent =
+    musicOn
+      ? "🎵 MUSIC: ON"
+      : "🎵 MUSIC: OFF";
+
+};
+
+
+// PAUSE
+
+pauseBtn.onclick = () => {
+
+  if (!gameStarted) return;
+
+  paused = true;
+
+  pauseMenu.style.display =
+    "flex";
+
+};
+
+
+// RESUME
+
+resumeBtn.onclick = () => {
+
+  paused = false;
+
+  pauseMenu.style.display =
+    "none";
+
+};
+
+
+// RESTART
+
+restartBtn.onclick = () => {
+
+  location.reload();
+
+};
+
+
+// MAIN MENU
+
+menuBtn.onclick = () => {
+
+  paused = false;
+
+  gameStarted = false;
+
+  pauseMenu.style.display =
+    "none";
+
+  controls.style.display =
+    "none";
+
+  gameUI.style.display =
+    "none";
+
+  menu.style.display =
+    "flex";
+
+};
+// ==========================
 // GAME VARIABLES
 // ==========================
 
@@ -277,7 +455,9 @@ function nextLevel() {
 // UPDATE
 // ==========================
 
-function update() {
+function update() {if (!gameStarted || paused) {
+  return;
+}
 
   if (
     gameOver ||
@@ -1920,12 +2100,15 @@ canvas.addEventListener(
 // ==========================
 // GAME LOOP
 // ==========================
-
 function gameLoop() {
 
-  update();
+  if (gameStarted) {
 
-  draw();
+    update();
+
+    draw();
+
+  }
 
   requestAnimationFrame(
     gameLoop
