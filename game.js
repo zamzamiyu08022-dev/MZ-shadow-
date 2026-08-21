@@ -14,9 +14,6 @@ const ctx = canvas.getContext("2d");
 let score = 0;
 let coins = 0;
 let lives = 3;
-
-let enemiesKilled = 0;
-let bossStarted = false;
 let level = 1;
 
 let gameOver = false;
@@ -31,11 +28,13 @@ let coinItems = [];
 let bullets = [];
 let bossBullets = [];
 let explosions = [];
-let animationTime = 0;
-let gunFlash = 0;
-
 
 let boss = null;
+
+let animationTime = 0;
+let gunFlash = 0;
+let bossPulse = 0;
+let bossAttackTimer = 0;
 
 const gravity = 0.6;
 
@@ -44,10 +43,10 @@ const gravity = 0.6;
 // ==========================
 
 const player = {
-  x: 165,
-  y: 450,
+  x: 160,
+  y: 440,
   width: 40,
-height: 60,
+  height: 60,
   speed: 5,
   velocityY: 0,
   jumping: false
@@ -59,7 +58,11 @@ height: 60,
 
 function createEnemy() {
 
-  if (gameOver || bossActive || levelComplete) {
+  if (
+    gameOver ||
+    bossActive ||
+    levelComplete
+  ) {
     return;
   }
 
@@ -67,7 +70,7 @@ function createEnemy() {
 
     x: Math.random() * 330,
 
-    y: -40,
+    y: -50,
 
     width: 30,
 
@@ -84,12 +87,16 @@ function createEnemy() {
 setInterval(createEnemy, 1200);
 
 // ==========================
-// COINS
+// COIN
 // ==========================
 
 function createCoin() {
 
-  if (gameOver || bossActive || levelComplete) {
+  if (
+    gameOver ||
+    bossActive ||
+    levelComplete
+  ) {
     return;
   }
 
@@ -97,7 +104,9 @@ function createCoin() {
 
     x: Math.random() * 330,
 
-    y: 100 + Math.random() * 300,
+    y:
+      100 +
+      Math.random() * 300,
 
     width: 18,
 
@@ -133,7 +142,10 @@ function jump() {
 
 function shoot() {
 
-  if (gameOver || levelComplete) {
+  if (
+    gameOver ||
+    levelComplete
+  ) {
     return;
   }
 
@@ -153,6 +165,7 @@ function shoot() {
     speed: 8
 
   });
+
   gunFlash = 5;
 }
 
@@ -164,13 +177,17 @@ function collision(a, b) {
 
   return (
 
-    a.x < b.x + b.width &&
+    a.x <
+      b.x + b.width &&
 
-    a.x + a.width > b.x &&
+    a.x + a.width >
+      b.x &&
 
-    a.y < b.y + b.height &&
+    a.y <
+      b.y + b.height &&
 
-    a.y + a.height > b.y
+    a.y + a.height >
+      b.y
 
   );
 }
@@ -178,15 +195,20 @@ function collision(a, b) {
 // ==========================
 // START BOSS
 // ==========================
-function startBoss() {
 
-  console.log("BOSS STARTED!");
+function startBoss() {
 
   bossActive = true;
 
   enemies = [];
 
   coinItems = [];
+
+  bossBullets = [];
+
+  bossAttackTimer = 0;
+
+  bossPulse = 0;
 
   boss = {
 
@@ -198,13 +220,19 @@ function startBoss() {
 
     height: 90,
 
-    health: 20 + level * 10,
+    health:
+      20 +
+      level * 10,
 
-    maxHealth: 20 + level * 10,
+    maxHealth:
+      20 +
+      level * 10,
 
     direction: 1,
 
-    speed: 2 + level * 0.3
+    speed:
+      2 +
+      level * 0.3
 
   };
 }
@@ -231,11 +259,13 @@ function nextLevel() {
 
   bossBullets = [];
 
+  explosions = [];
+
   lives = 3;
 
-  player.x = 165;
+  player.x = 160;
 
-  player.y = 450;
+  player.y = 440;
 
   player.velocityY = 0;
 
@@ -247,17 +277,28 @@ function nextLevel() {
 // UPDATE
 // ==========================
 
-function update() {animationTime += 0.15;
+function update() {
 
-if (gunFlash > 0) {
-  gunFlash--;
-}
+  if (
+    gameOver ||
+    levelComplete
+  ) {
 
-  if (gameOver || levelComplete) {
     return;
+
   }
 
+  animationTime += 0.15;
+
+  if (gunFlash > 0) {
+
+    gunFlash--;
+
+  }
+
+  // ==========================
   // PLAYER MOVEMENT
+  // ==========================
 
   if (left) {
 
@@ -271,8 +312,6 @@ if (gunFlash > 0) {
 
   }
 
-  // SCREEN LIMIT
-
   if (player.x < 0) {
 
     player.x = 0;
@@ -280,7 +319,8 @@ if (gunFlash > 0) {
   }
 
   if (
-    player.x + player.width >
+    player.x +
+    player.width >
     canvas.width
   ) {
 
@@ -290,19 +330,23 @@ if (gunFlash > 0) {
 
   }
 
+  // ==========================
   // GRAVITY
+  // ==========================
 
-  player.y += player.velocityY;
+  player.y +=
+    player.velocityY;
 
-  player.velocityY += gravity;
-
-  // GROUND
+  player.velocityY +=
+    gravity;
 
   if (
-    player.y + player.height >= 500
+    player.y +
+    player.height >=
+    500
   ) {
 
-    player.y = 450;
+    player.y = 440;
 
     player.velocityY = 0;
 
@@ -338,7 +382,8 @@ if (gunFlash > 0) {
 
   enemies =
     enemies.filter(
-      enemy => enemy.y < 600
+      enemy =>
+        enemy.y < 600
     );
 
   // ==========================
@@ -363,11 +408,12 @@ if (gunFlash > 0) {
 
   coinItems =
     coinItems.filter(
-      coin => coin.y < 600
+      coin =>
+        coin.y < 600
     );
 
   // ==========================
-  // BULLETS
+  // PLAYER BULLETS
   // ==========================
 
   bullets.forEach(bullet => {
@@ -379,21 +425,33 @@ if (gunFlash > 0) {
     enemies.forEach(enemy => {
 
       if (
-        collision(bullet, enemy)
+        collision(
+          bullet,
+          enemy
+        )
       ) {
 
-     score += 20;
+        score += 20;
 
-explosions.push({
-  x: enemy.x + enemy.width / 2,
-  y: enemy.y + enemy.height / 2,
-  radius: 5,
-  life: 20
-});
+        explosions.push({
 
-enemy.y = 700;
+          x:
+            enemy.x +
+            enemy.width / 2,
 
-bullet.y = -100;
+          y:
+            enemy.y +
+            enemy.height / 2,
+
+          radius: 5,
+
+          life: 20
+
+        });
+
+        enemy.y = 700;
+
+        bullet.y = -100;
 
       }
 
@@ -404,22 +462,47 @@ bullet.y = -100;
     if (
       bossActive &&
       boss &&
-      collision(bullet, boss)
+      collision(
+        bullet,
+        boss
+      )
     ) {
 
       boss.health--;
 
       bullet.y = -100;
 
-      if (boss.health <= 0) {
+      explosions.push({
+
+        x:
+          boss.x +
+          Math.random() *
+          boss.width,
+
+        y:
+          boss.y +
+          Math.random() *
+          boss.height,
+
+        radius: 6,
+
+        life: 15
+
+      });
+
+      if (
+        boss.health <= 0
+      ) {
+
+        score += 500;
 
         boss = null;
 
         bossActive = false;
 
-        levelComplete = true;
+        bossBullets = [];
 
-        score += 500;
+        levelComplete = true;
 
       }
 
@@ -429,45 +512,54 @@ bullet.y = -100;
 
   bullets =
     bullets.filter(
-      bullet => bullet.y > -50
+      bullet =>
+        bullet.y > -50
     );
 
   // ==========================
-  // START BOSS
+  // BOSS START
   // ==========================
 
-// ==========================
-// START BOSS
-// ==========================
+  if (
+    score >= 200 &&
+    !bossActive &&
+    !levelComplete
+  ) {
 
-if (
-  score >= 200 &&
-  !bossActive &&
-  !levelComplete
-) {
+    startBoss();
 
-  startBoss();
-
-}
+  }
 
   // ==========================
-  // BOSS MOVEMENT
+  // BOSS
   // ==========================
 
-  if (bossActive && boss) {
+  if (
+    bossActive &&
+    boss
+  ) {
+
+    bossPulse += 0.15;
+
+    bossAttackTimer++;
+
+    // BOSS MOVEMENT
 
     boss.x +=
       boss.speed *
       boss.direction;
 
-    if (boss.x <= 0) {
+    if (
+      boss.x <= 0
+    ) {
 
       boss.direction = 1;
 
     }
 
     if (
-      boss.x + boss.width >=
+      boss.x +
+      boss.width >=
       canvas.width
     ) {
 
@@ -475,30 +567,88 @@ if (
 
     }
 
-    // BOSS SHOOTING
+    // BOSS FLOATING
 
-    if (Math.random() < 0.025) {
+    boss.y =
+      70 +
+      Math.sin(
+        bossPulse
+      ) * 12;
 
-      bossBullets.push({
+    // ==========================
+    // BOSS ATTACK
+    // ==========================
 
-        x:
-          boss.x +
-          boss.width / 2 -
-          4,
+    if (
+      bossAttackTimer >= 70
+    ) {
 
-        y:
-          boss.y +
-          boss.height,
+      bossAttackTimer = 0;
 
-        width: 8,
+      for (
+        let i = -1;
+        i <= 1;
+        i++
+      ) {
 
-        height: 15,
+        bossBullets.push({
 
-        speed:
-          4 +
-          level * 0.5
+          x:
+            boss.x +
+            boss.width / 2 -
+            5,
 
-      });
+          y:
+            boss.y +
+            boss.height,
+
+          width: 10,
+
+          height: 18,
+
+          speed:
+            4 +
+            level * 0.5,
+
+          angle:
+            i * 0.25,
+
+          special: false
+
+        });
+
+      }
+
+      // SPECIAL ATTACK
+
+      if (
+        Math.random() < 0.4
+      ) {
+
+        bossBullets.push({
+
+          x:
+            boss.x +
+            boss.width / 2 -
+            10,
+
+          y:
+            boss.y +
+            boss.height,
+
+          width: 20,
+
+          height: 25,
+
+          speed: 6,
+
+          angle: 0,
+
+          special: true
+
+        });
+
+      }
 
     }
 
@@ -508,48 +658,88 @@ if (
   // BOSS BULLETS
   // ==========================
 
-  bossBullets.forEach(bullet => {
+  bossBullets.forEach(
+    bullet => {
 
-    bullet.y += bullet.speed;
+      bullet.y +=
+        bullet.speed;
 
-    if (
-      collision(player, bullet)
-    ) {
+      if (
+        bullet.angle
+      ) {
 
-      lives--;
+        bullet.x +=
+          bullet.angle * 4;
 
-      bullet.y = 700;
+      }
 
-      if (lives <= 0) {
+      if (
+        collision(
+          player,
+          bullet
+        )
+      ) {
 
-        gameOver = true;
+        lives--;
+
+        bullet.y = 700;
+
+        explosions.push({
+
+          x:
+            player.x +
+            player.width / 2,
+
+          y:
+            player.y +
+            player.height / 2,
+
+          radius: 8,
+
+          life: 15
+
+        });
+
+        if (
+          lives <= 0
+        ) {
+
+          gameOver = true;
+
+        }
 
       }
 
     }
-
-  });
+  );
 
   bossBullets =
     bossBullets.filter(
-      bullet => bullet.y < 600
+      bullet =>
+        bullet.y < 600
     );
 
-// ==========================
-// EXPLOSIONS
-// ==========================
+  // ==========================
+  // EXPLOSIONS
+  // ==========================
 
-explosions.forEach(explosion => {
+  explosions.forEach(
+    explosion => {
 
-  explosion.radius += 2;
-  explosion.life--;
+      explosion.radius += 2;
 
-});
+      explosion.life--;
 
-explosions =
-  explosions.filter(
-    explosion => explosion.life > 0
-  );}
+    }
+  );
+
+  explosions =
+    explosions.filter(
+      explosion =>
+        explosion.life > 0
+    );
+
+}
 
 // ==========================
 // DRAW
@@ -558,18 +748,18 @@ explosions =
 function draw() {
 
   // ==========================
-  // NIGHT BACKGROUND
+  // SKY
   // ==========================
 
-  ctx.fillStyle = "#050816";
+  ctx.fillStyle =
+    "#050816";
 
   ctx.fillRect(
     0,
     0,
-    canvas.width,
-    canvas.height
+    360,
+    560
   );
-
 
   // ==========================
   // STARS
@@ -577,10 +767,17 @@ function draw() {
 
   ctx.fillStyle = "white";
 
-  for (let i = 0; i < 45; i++) {
+  for (
+    let i = 0;
+    i < 45;
+    i++
+  ) {
 
-    const x = (i * 83) % 360;
-    const y = (i * 47) % 300;
+    const x =
+      (i * 83) % 360;
+
+    const y =
+      (i * 47) % 300;
 
     ctx.fillRect(
       x,
@@ -588,14 +785,15 @@ function draw() {
       2,
       2
     );
-  }
 
+  }
 
   // ==========================
   // MOON
   // ==========================
 
-  ctx.fillStyle = "#fff4bd";
+  ctx.fillStyle =
+    "#fff4bd";
 
   ctx.beginPath();
 
@@ -609,10 +807,8 @@ function draw() {
 
   ctx.fill();
 
-
-  // Moon shadow
-
-  ctx.fillStyle = "#050816";
+  ctx.fillStyle =
+    "#050816";
 
   ctx.beginPath();
 
@@ -626,7 +822,6 @@ function draw() {
 
   ctx.fill();
 
-
   // ==========================
   // CITY
   // ==========================
@@ -636,343 +831,372 @@ function draw() {
     {
       x: 0,
       y: 350,
-      width: 55,
-      height: 150
+      w: 55,
+      h: 150
     },
 
     {
       x: 60,
       y: 300,
-      width: 45,
-      height: 200
+      w: 45,
+      h: 200
     },
 
     {
       x: 110,
       y: 365,
-      width: 50,
-      height: 135
+      w: 50,
+      h: 135
     },
 
     {
       x: 165,
       y: 315,
-      width: 55,
-      height: 185
+      w: 55,
+      h: 185
     },
 
     {
       x: 225,
       y: 360,
-      width: 45,
-      height: 140
+      w: 45,
+      h: 140
     },
 
     {
       x: 275,
       y: 285,
-      width: 50,
-      height: 215
+      w: 50,
+      h: 215
     },
 
     {
       x: 330,
       y: 335,
-      width: 30,
-      height: 165
+      w: 30,
+      h: 165
     }
 
   ];
 
+  ctx.fillStyle =
+    "#101321";
 
-  ctx.fillStyle = "#101321";
+  buildings.forEach(
+    building => {
 
-  buildings.forEach(building => {
+      ctx.fillRect(
+        building.x,
+        building.y,
+        building.w,
+        building.h
+      );
 
-    ctx.fillRect(
-      building.x,
-      building.y,
-      building.width,
-      building.height
-    );
+    }
+  );
 
-  });
+  // WINDOWS
 
+  ctx.fillStyle =
+    "#ffd966";
 
-  // ==========================
-  // BUILDING WINDOWS
-  // ==========================
-
-  ctx.fillStyle = "#ffd966";
-
-  buildings.forEach(building => {
-
-    for (
-      let y = building.y + 20;
-      y < 490;
-      y += 30
-    ) {
+  buildings.forEach(
+    building => {
 
       for (
-        let x = building.x + 10;
-        x < building.x + building.width - 5;
-        x += 20
+        let y =
+          building.y + 20;
+        y < 490;
+        y += 30
       ) {
 
-        ctx.fillRect(
-          x,
-          y,
-          6,
-          9
-        );
+        for (
+          let x =
+            building.x + 10;
+          x <
+            building.x +
+            building.w -
+            5;
+          x += 20
+        ) {
+
+          ctx.fillRect(
+            x,
+            y,
+            6,
+            9
+          );
+
+        }
 
       }
 
     }
-
-  });
-
+  );
 
   // ==========================
   // GROUND
   // ==========================
 
-  ctx.fillStyle = "#151515";
+  ctx.fillStyle =
+    "#151515";
 
   ctx.fillRect(
     0,
     500,
-    canvas.width,
+    360,
     60
   );
 
-
-  // Road line
-
-  ctx.fillStyle = "#444";
+  ctx.fillStyle =
+    "#444";
 
   ctx.fillRect(
     0,
     525,
-    canvas.width,
+    360,
     4
   );
 
+  // ==========================
+  // ZAMZAMIYU
+  // ==========================
 
-// ==========================
-// ZAMZAMIYU
-// ==========================
+  const px = player.x;
+  const py = player.y;
 
-// CHARACTER POSITION
+  const walk =
+    Math.sin(
+      animationTime * 4
+    ) * 3;
 
-const px = player.x;
-const py = player.y;
-// ==========================
-// ANIMATED LEGS
-// ==========================
+  // LEGS
 
-const walk = Math.sin(animationTime * 4) * 4;
+  ctx.fillStyle =
+    "#050505";
 
-ctx.fillStyle = "#050505";
+  ctx.fillRect(
+    px + 5,
+    py + 35 + walk,
+    9,
+    25
+  );
 
-// LEFT LEG
+  ctx.fillRect(
+    px + 17,
+    py + 35 - walk,
+    9,
+    25
+  );
 
-ctx.fillRect(
-  px + 5,
-  py + 35 + walk,
-  9,
-  25
-);
+  // SHOES
 
-// RIGHT LEG
+  ctx.fillStyle =
+    "#555";
 
-ctx.fillRect(
-  px + 17,
-  py + 35 - walk,
-  9,
-  25
-);
-// SHOES
+  ctx.fillRect(
+    px + 1,
+    py + 55,
+    14,
+    6
+  );
 
-ctx.fillStyle = "#555";
+  ctx.fillRect(
+    px + 16,
+    py + 55,
+    14,
+    6
+  );
 
-ctx.fillRect(
-  px + 1,
-  py + 55,
-  14,
-  6
-);
+  // BODY
 
-ctx.fillRect(
-  px + 16,
-  py + 55,
-  14,
-  6
-);
+  ctx.fillStyle =
+    "#090909";
 
-// ==========================
-// BODY
-// ==========================
+  ctx.fillRect(
+    px + 4,
+    py + 10,
+    23,
+    30
+  );
 
-ctx.fillStyle = "#090909";
+  // ARMOR
 
-ctx.fillRect(
-  px + 4,
-  py + 10,
-  23,
-  30
-);
+  ctx.strokeStyle =
+    "#777";
 
-// BODY ARMOR
+  ctx.lineWidth = 2;
 
-ctx.strokeStyle = "#777";
+  ctx.strokeRect(
+    px + 7,
+    py + 14,
+    17,
+    20
+  );
 
-ctx.lineWidth = 2;
+  // LEFT ARM
 
-ctx.strokeRect(
-  px + 7,
-  py + 14,
-  17,
-  20
-);
+  ctx.fillStyle =
+    "#090909";
 
-// ==========================
-// LEFT ARM
-// ==========================
+  ctx.fillRect(
+    px - 8,
+    py + 12,
+    12,
+    28
+  );
 
-ctx.fillStyle = "#090909";
+  // RIGHT ARM
 
-ctx.fillRect(
-  px - 8,
-  py + 12,
-  12,
-  28
-);
+  ctx.fillRect(
+    px + 27,
+    py + 12,
+    12,
+    28
+  );
 
-// LEFT HAND
+  // HANDS
 
-ctx.fillStyle = "#888";
+  ctx.fillStyle =
+    "#888";
 
-ctx.beginPath();
+  ctx.beginPath();
 
-ctx.arc(
-  px - 3,
-  py + 42,
-  6,
-  0,
-  Math.PI * 2
-);
+  ctx.arc(
+    px - 3,
+    py + 42,
+    6,
+    0,
+    Math.PI * 2
+  );
 
-ctx.fill();
+  ctx.fill();
 
-// ==========================
-// RIGHT ARM
-// ==========================
+  ctx.beginPath();
 
-ctx.fillStyle = "#090909";
+  ctx.arc(
+    px + 34,
+    py + 42,
+    6,
+    0,
+    Math.PI * 2
+  );
 
-ctx.fillRect(
-  px + 27,
-  py + 12,
-  12,
-  28
-);
+  ctx.fill();
 
-// RIGHT HAND
+  // HEAD
 
-ctx.fillStyle = "#888";
+  ctx.fillStyle =
+    "#444";
 
-ctx.beginPath();
+  ctx.beginPath();
 
-ctx.arc(
-  px + 34,
-  py + 42,
-  6,
-  0,
-  Math.PI * 2
-);
+  ctx.arc(
+    px + 15,
+    py + 2,
+    15,
+    0,
+    Math.PI * 2
+  );
 
-ctx.fill();
+  ctx.fill();
 
-// ==========================
-// GUN
-// ==========================
+  // MASK
 
-ctx.fillStyle = "#777";
+  ctx.fillStyle =
+    "#050505";
 
-ctx.fillRect(
-  px + 32,
-  py + 27,
-  25,
-  7
-);
+  ctx.fillRect(
+    px + 1,
+    py - 3,
+    28,
+    13
+  );
 
-ctx.fillStyle = "#222";
+  // EYES
 
-ctx.fillRect(
-  px + 47,
-  py + 32,
-  7,
-  12
-);
+  ctx.fillStyle =
+    "red";
 
-// ==========================
-// HEAD
-// ==========================
+  ctx.fillRect(
+    px + 6,
+    py,
+    6,
+    4
+  );
 
-ctx.fillStyle = "#444";
+  ctx.fillRect(
+    px + 18,
+    py,
+    6,
+    4
+  );
 
-ctx.beginPath();
+  // GUN
 
-ctx.arc(
-  px + 15,
-  py + 2,
-  15,
-  0,
-  Math.PI * 2
-);
+  ctx.fillStyle =
+    "#777";
 
-ctx.fill();
+  ctx.fillRect(
+    px + 32,
+    py + 27,
+    25,
+    7
+  );
 
-// ==========================
-// SHADOW MASK
-// ==========================
+  ctx.fillStyle =
+    "#222";
 
-ctx.fillStyle = "#050505";
+  ctx.fillRect(
+    px + 47,
+    py + 32,
+    7,
+    12
+  );
 
-ctx.fillRect(
-  px + 1,
-  py - 3,
-  28,
-  13
-);
+  // GUN FLASH
 
-// ==========================
-// RED EYES
-// ==========================
+  if (gunFlash > 0) {
 
-ctx.fillStyle = "red";
+    ctx.fillStyle =
+      "yellow";
 
-ctx.fillRect(
-  px + 6,
-  py,
-  6,
-  4
-);
+    ctx.beginPath();
 
-ctx.fillRect(
-  px + 18,
-  py,
-  6,
-  4
-);
+    ctx.moveTo(
+      px + 57,
+      py + 30
+    );
+
+    ctx.lineTo(
+      px + 73,
+      py + 23
+    );
+
+    ctx.lineTo(
+      px + 68,
+      py + 30
+    );
+
+    ctx.lineTo(
+      px + 73,
+      py + 37
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+  }
+
   // ==========================
   // ENEMIES
   // ==========================
 
   enemies.forEach(enemy => {
 
-    ctx.fillStyle = "#555";
+    ctx.fillStyle =
+      "#555";
 
     ctx.fillRect(
       enemy.x,
@@ -981,7 +1205,8 @@ ctx.fillRect(
       enemy.height
     );
 
-    ctx.fillStyle = "red";
+    ctx.fillStyle =
+      "red";
 
     ctx.fillRect(
       enemy.x + 6,
@@ -999,14 +1224,14 @@ ctx.fillRect(
 
   });
 
-
   // ==========================
   // COINS
   // ==========================
 
   coinItems.forEach(coin => {
 
-    ctx.fillStyle = "gold";
+    ctx.fillStyle =
+      "gold";
 
     ctx.beginPath();
 
@@ -1022,32 +1247,65 @@ ctx.fillRect(
 
   });
 
-
   // ==========================
   // BULLETS
   // ==========================
 
-  ctx.fillStyle = "red";
+  ctx.fillStyle =
+    "red";
 
-  bullets.forEach(bullet => {
+  bullets.forEach(
+    bullet => {
 
-    ctx.fillRect(
-      bullet.x,
-      bullet.y,
-      bullet.width,
-      bullet.height
-    );
+      ctx.fillRect(
+        bullet.x,
+        bullet.y,
+        bullet.width,
+        bullet.height
+      );
 
-  });
-
+    }
+  );
 
   // ==========================
   // BOSS
   // ==========================
 
-  if (bossActive && boss) {
+  if (
+    bossActive &&
+    boss
+  ) {
 
-    ctx.fillStyle = "#5b168a";
+    const pulse =
+      Math.sin(
+        bossPulse
+      ) * 5;
+
+    // AURA
+
+    ctx.strokeStyle =
+      "red";
+
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      boss.x +
+        boss.width / 2,
+      boss.y +
+        boss.height / 2,
+      65 + pulse,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.stroke();
+
+    // BODY
+
+    ctx.fillStyle =
+      "#5b168a";
 
     ctx.fillRect(
       boss.x,
@@ -1056,10 +1314,10 @@ ctx.fillRect(
       boss.height
     );
 
+    // HEAD
 
-    // Boss head
-
-    ctx.fillStyle = "#301044";
+    ctx.fillStyle =
+      "#301044";
 
     ctx.beginPath();
 
@@ -1073,10 +1331,17 @@ ctx.fillRect(
 
     ctx.fill();
 
+    // EYES
 
-    // Boss eyes
+    const eyeGlow =
+      Math.sin(
+        bossPulse * 2
+      ) > 0
+        ? "#ff0000"
+        : "#660000";
 
-    ctx.fillStyle = "red";
+    ctx.fillStyle =
+      eyeGlow;
 
     ctx.fillRect(
       boss.x + 42,
@@ -1092,10 +1357,10 @@ ctx.fillRect(
       8
     );
 
+    // HEALTH BAR
 
-    // Boss health background
-
-    ctx.fillStyle = "red";
+    ctx.fillStyle =
+      "red";
 
     ctx.fillRect(
       50,
@@ -1104,23 +1369,25 @@ ctx.fillRect(
       18
     );
 
-
-    // Boss health
-
-    ctx.fillStyle = "lime";
+    ctx.fillStyle =
+      "lime";
 
     ctx.fillRect(
       50,
       20,
       260 *
-      (boss.health / boss.maxHealth),
+        (
+          boss.health /
+          boss.maxHealth
+        ),
       18
     );
 
+    ctx.fillStyle =
+      "white";
 
-    ctx.fillStyle = "white";
-
-    ctx.font = "14px Arial";
+    ctx.font =
+      "14px Arial";
 
     ctx.fillText(
       "BOSS",
@@ -1130,70 +1397,115 @@ ctx.fillRect(
 
   }
 
-
   // ==========================
   // BOSS BULLETS
   // ==========================
 
-  ctx.fillStyle = "orange";
+  bossBullets.forEach(
+    bullet => {
 
-  bossBullets.forEach(bullet => {
+      if (
+        bullet.special
+      ) {
 
-    ctx.fillRect(
-      bullet.x,
-      bullet.y,
-      bullet.width,
-      bullet.height
-    );
+        ctx.fillStyle =
+          "#00ffff";
 
-  });
+        ctx.beginPath();
 
+        ctx.arc(
+          bullet.x +
+            bullet.width / 2,
+          bullet.y +
+            bullet.height / 2,
+          12,
+          0,
+          Math.PI * 2
+        );
+
+        ctx.fill();
+
+      } else {
+
+        ctx.fillStyle =
+          "orange";
+
+        ctx.fillRect(
+          bullet.x,
+          bullet.y,
+          bullet.width,
+          bullet.height
+        );
+
+      }
+
+    }
+  );
 
   // ==========================
   // EXPLOSIONS
   // ==========================
 
-  explosions.forEach(explosion => {
+  explosions.forEach(
+    explosion => {
 
-    ctx.beginPath();
+      ctx.beginPath();
 
-    ctx.arc(
-      explosion.x,
-      explosion.y,
-      explosion.radius,
-      0,
-      Math.PI * 2
-    );
+      ctx.arc(
+        explosion.x,
+        explosion.y,
+        explosion.radius,
+        0,
+        Math.PI * 2
+      );
 
-    ctx.fillStyle = "orange";
+      ctx.fillStyle =
+        "red";
 
-    ctx.fill();
+      ctx.fill();
 
+      ctx.beginPath();
 
-    ctx.beginPath();
+      ctx.arc(
+        explosion.x,
+        explosion.y,
+        explosion.radius * 0.7,
+        0,
+        Math.PI * 2
+      );
 
-    ctx.arc(
-      explosion.x,
-      explosion.y,
-      explosion.radius / 2,
-      0,
-      Math.PI * 2
-    );
+      ctx.fillStyle =
+        "orange";
 
-    ctx.fillStyle = "yellow";
+      ctx.fill();
 
-    ctx.fill();
+      ctx.beginPath();
 
-  });
+      ctx.arc(
+        explosion.x,
+        explosion.y,
+        explosion.radius * 0.35,
+        0,
+        Math.PI * 2
+      );
 
+      ctx.fillStyle =
+        "yellow";
+
+      ctx.fill();
+
+    }
+  );
 
   // ==========================
-  // GAME UI
+  // UI
   // ==========================
 
-  ctx.fillStyle = "white";
+  ctx.fillStyle =
+    "white";
 
-  ctx.font = "17px Arial";
+  ctx.font =
+    "17px Arial";
 
   ctx.fillText(
     "MZ SHADOW",
@@ -1201,7 +1513,8 @@ ctx.fillRect(
     55
   );
 
-  ctx.font = "14px Arial";
+  ctx.font =
+    "14px Arial";
 
   ctx.fillText(
     "Score: " + score,
@@ -1227,7 +1540,6 @@ ctx.fillRect(
     105
   );
 
-
   // ==========================
   // LEVEL COMPLETE
   // ==========================
@@ -1240,13 +1552,15 @@ ctx.fillRect(
     ctx.fillRect(
       0,
       0,
-      canvas.width,
-      canvas.height
+      360,
+      560
     );
 
-    ctx.fillStyle = "lime";
+    ctx.fillStyle =
+      "lime";
 
-    ctx.font = "28px Arial";
+    ctx.font =
+      "28px Arial";
 
     ctx.fillText(
       "BOSS DEFEATED!",
@@ -1254,17 +1568,22 @@ ctx.fillRect(
       245
     );
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle =
+      "white";
 
-    ctx.font = "18px Arial";
+    ctx.font =
+      "18px Arial";
 
     ctx.fillText(
-      "LEVEL " + level + " COMPLETE",
+      "LEVEL " +
+      level +
+      " COMPLETE",
       90,
       285
     );
 
-    ctx.fillStyle = "gold";
+    ctx.fillStyle =
+      "gold";
 
     ctx.fillRect(
       100,
@@ -1273,9 +1592,11 @@ ctx.fillRect(
       50
     );
 
-    ctx.fillStyle = "black";
+    ctx.fillStyle =
+      "black";
 
-    ctx.font = "20px Arial";
+    ctx.font =
+      "20px Arial";
 
     ctx.fillText(
       "NEXT LEVEL",
@@ -1284,7 +1605,6 @@ ctx.fillRect(
     );
 
   }
-
 
   // ==========================
   // GAME OVER
@@ -1298,13 +1618,15 @@ ctx.fillRect(
     ctx.fillRect(
       0,
       0,
-      canvas.width,
-      canvas.height
+      360,
+      560
     );
 
-    ctx.fillStyle = "red";
+    ctx.fillStyle =
+      "red";
 
-    ctx.font = "32px Arial";
+    ctx.font =
+      "32px Arial";
 
     ctx.fillText(
       "GAME OVER",
@@ -1312,9 +1634,11 @@ ctx.fillRect(
       260
     );
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle =
+      "white";
 
-    ctx.font = "18px Arial";
+    ctx.font =
+      "18px Arial";
 
     ctx.fillText(
       "Refresh to play again",
@@ -1335,7 +1659,8 @@ document.addEventListener(
   event => {
 
     if (
-      event.key === "ArrowLeft"
+      event.key ===
+      "ArrowLeft"
     ) {
 
       left = true;
@@ -1343,7 +1668,8 @@ document.addEventListener(
     }
 
     if (
-      event.key === "ArrowRight"
+      event.key ===
+      "ArrowRight"
     ) {
 
       right = true;
@@ -1369,7 +1695,8 @@ document.addEventListener(
     }
 
     if (
-      event.key.toLowerCase() === "f"
+      event.key.toLowerCase() ===
+      "f"
     ) {
 
       shoot();
@@ -1384,7 +1711,8 @@ document.addEventListener(
   event => {
 
     if (
-      event.key === "ArrowLeft"
+      event.key ===
+      "ArrowLeft"
     ) {
 
       left = false;
@@ -1392,7 +1720,8 @@ document.addEventListener(
     }
 
     if (
-      event.key === "ArrowRight"
+      event.key ===
+      "ArrowRight"
     ) {
 
       right = false;
@@ -1403,20 +1732,28 @@ document.addEventListener(
 );
 
 // ==========================
-// TOUCH BUTTONS
+// TOUCH CONTROLS
 // ==========================
 
 const leftButton =
-  document.getElementById("left");
+  document.getElementById(
+    "left"
+  );
 
 const rightButton =
-  document.getElementById("right");
+  document.getElementById(
+    "right"
+  );
 
 const jumpButton =
-  document.getElementById("jump");
+  document.getElementById(
+    "jump"
+  );
 
 const shootButton =
-  document.getElementById("shoot");
+  document.getElementById(
+    "shoot"
+  );
 
 // LEFT
 
@@ -1514,6 +1851,17 @@ if (shootButton) {
     }
   );
 
+  shootButton.addEventListener(
+    "click",
+    e => {
+
+      e.preventDefault();
+
+      shoot();
+
+    }
+  );
+
 }
 
 // ==========================
@@ -1525,26 +1873,34 @@ canvas.addEventListener(
   event => {
 
     if (!levelComplete) {
+
       return;
+
     }
 
     const rect =
       canvas.getBoundingClientRect();
 
     const scaleX =
-      canvas.width / rect.width;
+      canvas.width /
+      rect.width;
 
     const scaleY =
-      canvas.height / rect.height;
+      canvas.height /
+      rect.height;
 
     const x =
-      (event.clientX -
-       rect.left) *
+      (
+        event.clientX -
+        rect.left
+      ) *
       scaleX;
 
     const y =
-      (event.clientY -
-       rect.top) *
+      (
+        event.clientY -
+        rect.top
+      ) *
       scaleY;
 
     if (
