@@ -8,17 +8,30 @@ document.body.appendChild(canvas);
 const ctx = canvas.getContext("2d");
 
 // ==========================
-// GAME
+// GAME VARIABLES
 // ==========================
 
 let score = 0;
 let coins = 0;
 let lives = 3;
 
+let level = 1;
+
+let gameOver = false;
+let bossActive = false;
+let levelComplete = false;
+
 let left = false;
 let right = false;
 
-let gameOver = false;
+let enemies = [];
+let coinItems = [];
+let bullets = [];
+let bossBullets = [];
+
+let boss = null;
+
+const gravity = 0.6;
 
 // ==========================
 // PLAYER
@@ -26,29 +39,23 @@ let gameOver = false;
 
 const player = {
   x: 165,
-  y: 440,
-
+  y: 450,
   width: 30,
   height: 50,
-
   speed: 5,
-
   velocityY: 0,
-
   jumping: false
 };
 
-const gravity = 0.6;
-
 // ==========================
-// ENEMIES
+// ENEMY
 // ==========================
-
-let enemies = [];
 
 function createEnemy() {
 
-  if (gameOver) return;
+  if (gameOver || bossActive || levelComplete) {
+    return;
+  }
 
   enemies.push({
 
@@ -60,7 +67,10 @@ function createEnemy() {
 
     height: 40,
 
-    speed: 2 + Math.random() * 2
+    speed:
+      2 +
+      Math.random() * 1.5 +
+      level * 0.3
 
   });
 }
@@ -71,11 +81,11 @@ setInterval(createEnemy, 1200);
 // COINS
 // ==========================
 
-let coinItems = [];
-
 function createCoin() {
 
-  if (gameOver) return;
+  if (gameOver || bossActive || levelComplete) {
+    return;
+  }
 
   coinItems.push({
 
@@ -93,18 +103,40 @@ function createCoin() {
 setInterval(createCoin, 1500);
 
 // ==========================
-// BULLETS
+// JUMP
 // ==========================
 
-let bullets = [];
+function jump() {
+
+  if (
+    !player.jumping &&
+    !gameOver &&
+    !levelComplete
+  ) {
+
+    player.velocityY = -12;
+
+    player.jumping = true;
+
+  }
+}
+
+// ==========================
+// SHOOT
+// ==========================
 
 function shoot() {
 
-  if (gameOver) return;
+  if (gameOver || levelComplete) {
+    return;
+  }
 
   bullets.push({
 
-    x: player.x + 12,
+    x:
+      player.x +
+      player.width / 2 -
+      3,
 
     y: player.y,
 
@@ -115,24 +147,6 @@ function shoot() {
     speed: 8
 
   });
-}
-
-// ==========================
-// JUMP
-// ==========================
-
-function jump() {
-
-  if (
-    !player.jumping &&
-    !gameOver
-  ) {
-
-    player.velocityY = -12;
-
-    player.jumping = true;
-
-  }
 }
 
 // ==========================
@@ -155,14 +169,84 @@ function collision(a, b) {
 }
 
 // ==========================
+// START BOSS
+// ==========================
+
+function startBoss() {
+
+  bossActive = true;
+
+  enemies = [];
+
+  coinItems = [];
+
+  boss = {
+
+    x: 120,
+
+    y: 70,
+
+    width: 120,
+
+    height: 90,
+
+    health: 20 + level * 10,
+
+    maxHealth: 20 + level * 10,
+
+    direction: 1,
+
+    speed: 2 + level * 0.3
+
+  };
+
+}
+
+// ==========================
+// NEXT LEVEL
+// ==========================
+
+function nextLevel() {
+
+  level++;
+
+  levelComplete = false;
+
+  bossActive = false;
+
+  boss = null;
+
+  enemies = [];
+
+  coinItems = [];
+
+  bullets = [];
+
+  bossBullets = [];
+
+  lives = 3;
+
+  player.x = 165;
+
+  player.y = 450;
+
+  player.velocityY = 0;
+
+  player.jumping = false;
+
+}
+
+// ==========================
 // UPDATE
 // ==========================
 
 function update() {
 
-  if (gameOver) return;
+  if (gameOver || levelComplete) {
+    return;
+  }
 
-  // PLAYER MOVE
+  // PLAYER MOVEMENT
 
   if (left) {
 
@@ -190,7 +274,8 @@ function update() {
   ) {
 
     player.x =
-      canvas.width - player.width;
+      canvas.width -
+      player.width;
 
   }
 
@@ -206,8 +291,7 @@ function update() {
     player.y + player.height >= 500
   ) {
 
-    player.y =
-      500 - player.height;
+    player.y = 450;
 
     player.velocityY = 0;
 
@@ -222,8 +306,6 @@ function update() {
   enemies.forEach(enemy => {
 
     enemy.y += enemy.speed;
-
-    // PLAYER HIT
 
     if (
       collision(player, enemy)
@@ -281,6 +363,8 @@ function update() {
 
     bullet.y -= bullet.speed;
 
+    // ENEMY HIT
+
     enemies.forEach(enemy => {
 
       if (
@@ -297,12 +381,143 @@ function update() {
 
     });
 
+    // BOSS HIT
+
+    if (
+      bossActive &&
+      boss &&
+      collision(bullet, boss)
+    ) {
+
+      boss.health--;
+
+      bullet.y = -100;
+
+      if (boss.health <= 0) {
+
+        boss = null;
+
+        bossActive = false;
+
+        levelComplete = true;
+
+        score += 500;
+
+      }
+
+    }
+
   });
 
   bullets =
     bullets.filter(
       bullet => bullet.y > -50
     );
+
+  // ==========================
+  // START BOSS
+  // ==========================
+
+  const bossScore =
+    level === 1
+      ? 200
+      : 500 + (level - 2) * 300;
+
+  if (
+    score >= bossScore &&
+    !bossActive &&
+    !levelComplete
+  ) {
+
+    startBoss();
+
+  }
+
+  // ==========================
+  // BOSS MOVEMENT
+  // ==========================
+
+  if (bossActive && boss) {
+
+    boss.x +=
+      boss.speed *
+      boss.direction;
+
+    if (boss.x <= 0) {
+
+      boss.direction = 1;
+
+    }
+
+    if (
+      boss.x + boss.width >=
+      canvas.width
+    ) {
+
+      boss.direction = -1;
+
+    }
+
+    // BOSS SHOOTING
+
+    if (Math.random() < 0.025) {
+
+      bossBullets.push({
+
+        x:
+          boss.x +
+          boss.width / 2 -
+          4,
+
+        y:
+          boss.y +
+          boss.height,
+
+        width: 8,
+
+        height: 15,
+
+        speed:
+          4 +
+          level * 0.5
+
+      });
+
+    }
+
+  }
+
+  // ==========================
+  // BOSS BULLETS
+  // ==========================
+
+  bossBullets.forEach(bullet => {
+
+    bullet.y += bullet.speed;
+
+    if (
+      collision(player, bullet)
+    ) {
+
+      lives--;
+
+      bullet.y = 700;
+
+      if (lives <= 0) {
+
+        gameOver = true;
+
+      }
+
+    }
+
+  });
+
+  bossBullets =
+    bossBullets.filter(
+      bullet => bullet.y < 600
+    );
+
 }
 
 // ==========================
@@ -326,11 +541,13 @@ function draw() {
 
   ctx.fillStyle = "#333";
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 35; i++) {
 
-    const x = (i * 97) % 360;
+    const x =
+      (i * 97) % 360;
 
-    const y = (i * 53) % 480;
+    const y =
+      (i * 53) % 480;
 
     ctx.fillRect(
       x,
@@ -356,9 +573,7 @@ function draw() {
   // PLAYER
   // ==========================
 
-  // BODY
-
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "white";
 
   ctx.fillRect(
 
@@ -374,7 +589,7 @@ function draw() {
 
   // HEAD
 
-  ctx.fillStyle = "#dddddd";
+  ctx.fillStyle = "#ddd";
 
   ctx.fillRect(
 
@@ -515,6 +730,117 @@ function draw() {
   });
 
   // ==========================
+  // BOSS
+  // ==========================
+
+  if (bossActive && boss) {
+
+    ctx.fillStyle = "purple";
+
+    ctx.fillRect(
+
+      boss.x,
+
+      boss.y,
+
+      boss.width,
+
+      boss.height
+
+    );
+
+    // BOSS EYES
+
+    ctx.fillStyle = "red";
+
+    ctx.fillRect(
+
+      boss.x + 25,
+
+      boss.y + 25,
+
+      15,
+
+      15
+
+    );
+
+    ctx.fillRect(
+
+      boss.x + 80,
+
+      boss.y + 25,
+
+      15,
+
+      15
+
+    );
+
+    // HEALTH BACKGROUND
+
+    ctx.fillStyle = "red";
+
+    ctx.fillRect(
+      50,
+      20,
+      260,
+      18
+    );
+
+    // HEALTH
+
+    ctx.fillStyle = "lime";
+
+    ctx.fillRect(
+
+      50,
+
+      20,
+
+      260 *
+      (boss.health /
+       boss.maxHealth),
+
+      18
+
+    );
+
+    ctx.fillStyle = "white";
+
+    ctx.font = "14px Arial";
+
+    ctx.fillText(
+      "BOSS",
+      165,
+      33
+    );
+
+  }
+
+  // ==========================
+  // BOSS BULLETS
+  // ==========================
+
+  ctx.fillStyle = "orange";
+
+  bossBullets.forEach(bullet => {
+
+    ctx.fillRect(
+
+      bullet.x,
+
+      bullet.y,
+
+      bullet.width,
+
+      bullet.height
+
+    );
+
+  });
+
+  // ==========================
   // UI
   // ==========================
 
@@ -525,7 +851,7 @@ function draw() {
   ctx.fillText(
     "MZ SHADOW",
     115,
-    25
+    55
   );
 
   ctx.font = "14px Arial";
@@ -533,20 +859,83 @@ function draw() {
   ctx.fillText(
     "Score: " + score,
     10,
-    55
+    80
   );
 
   ctx.fillText(
     "🪙 " + coins,
     145,
-    55
+    80
   );
 
   ctx.fillText(
     "❤️ " + lives,
     285,
-    55
+    80
   );
+
+  ctx.fillText(
+    "LEVEL " + level,
+    145,
+    105
+  );
+
+  // ==========================
+  // LEVEL COMPLETE
+  // ==========================
+
+  if (levelComplete) {
+
+    ctx.fillStyle =
+      "rgba(0,0,0,0.75)";
+
+    ctx.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    ctx.fillStyle = "lime";
+
+    ctx.font = "28px Arial";
+
+    ctx.fillText(
+      "BOSS DEFEATED!",
+      55,
+      245
+    );
+
+    ctx.fillStyle = "white";
+
+    ctx.font = "18px Arial";
+
+    ctx.fillText(
+      "LEVEL " + level + " COMPLETE",
+      90,
+      285
+    );
+
+    ctx.fillStyle = "gold";
+
+    ctx.fillRect(
+      100,
+      320,
+      160,
+      50
+    );
+
+    ctx.fillStyle = "black";
+
+    ctx.font = "20px Arial";
+
+    ctx.fillText(
+      "NEXT LEVEL",
+      115,
+      352
+    );
+
+  }
 
   // ==========================
   // GAME OVER
@@ -555,7 +944,7 @@ function draw() {
   if (gameOver) {
 
     ctx.fillStyle =
-      "rgba(0,0,0,0.7)";
+      "rgba(0,0,0,0.75)";
 
     ctx.fillRect(
       0,
@@ -571,7 +960,7 @@ function draw() {
     ctx.fillText(
       "GAME OVER",
       80,
-      270
+      260
     );
 
     ctx.fillStyle = "white";
@@ -581,10 +970,11 @@ function draw() {
     ctx.fillText(
       "Refresh to play again",
       85,
-      310
+      305
     );
 
   }
+
 }
 
 // ==========================
@@ -617,7 +1007,15 @@ document.addEventListener(
 
       event.preventDefault();
 
-      jump();
+      if (levelComplete) {
+
+        nextLevel();
+
+      } else {
+
+        jump();
+
+      }
 
     }
 
@@ -656,7 +1054,7 @@ document.addEventListener(
 );
 
 // ==========================
-// TOUCH CONTROLS
+// TOUCH BUTTONS
 // ==========================
 
 const leftButton =
@@ -677,9 +1075,9 @@ if (leftButton) {
 
   leftButton.addEventListener(
     "touchstart",
-    event => {
+    e => {
 
-      event.preventDefault();
+      e.preventDefault();
 
       left = true;
 
@@ -688,9 +1086,9 @@ if (leftButton) {
 
   leftButton.addEventListener(
     "touchend",
-    event => {
+    e => {
 
-      event.preventDefault();
+      e.preventDefault();
 
       left = false;
 
@@ -705,9 +1103,9 @@ if (rightButton) {
 
   rightButton.addEventListener(
     "touchstart",
-    event => {
+    e => {
 
-      event.preventDefault();
+      e.preventDefault();
 
       right = true;
 
@@ -716,9 +1114,9 @@ if (rightButton) {
 
   rightButton.addEventListener(
     "touchend",
-    event => {
+    e => {
 
-      event.preventDefault();
+      e.preventDefault();
 
       right = false;
 
@@ -733,11 +1131,19 @@ if (jumpButton) {
 
   jumpButton.addEventListener(
     "touchstart",
-    event => {
+    e => {
 
-      event.preventDefault();
+      e.preventDefault();
 
-      jump();
+      if (levelComplete) {
+
+        nextLevel();
+
+      } else {
+
+        jump();
+
+      }
 
     }
   );
@@ -750,20 +1156,9 @@ if (shootButton) {
 
   shootButton.addEventListener(
     "touchstart",
-    event => {
+    e => {
 
-      event.preventDefault();
-
-      shoot();
-
-    }
-  );
-
-  shootButton.addEventListener(
-    "click",
-    event => {
-
-      event.preventDefault();
+      e.preventDefault();
 
       shoot();
 
@@ -771,6 +1166,51 @@ if (shootButton) {
   );
 
 }
+
+// ==========================
+// NEXT LEVEL CLICK
+// ==========================
+
+canvas.addEventListener(
+  "click",
+  event => {
+
+    if (!levelComplete) {
+      return;
+    }
+
+    const rect =
+      canvas.getBoundingClientRect();
+
+    const scaleX =
+      canvas.width / rect.width;
+
+    const scaleY =
+      canvas.height / rect.height;
+
+    const x =
+      (event.clientX -
+       rect.left) *
+      scaleX;
+
+    const y =
+      (event.clientY -
+       rect.top) *
+      scaleY;
+
+    if (
+      x >= 100 &&
+      x <= 260 &&
+      y >= 320 &&
+      y <= 370
+    ) {
+
+      nextLevel();
+
+    }
+
+  }
+);
 
 // ==========================
 // GAME LOOP
